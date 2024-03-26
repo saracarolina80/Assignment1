@@ -23,7 +23,7 @@ public class ContestantsBench {
     /**
      * State of the coach.
      */
-    private CoachStates coachState;
+    private int  coachState;
 
     /**
      * Instantiation of the bench object.
@@ -44,7 +44,7 @@ public class ContestantsBench {
      *
      * @param state coach state
      */
-    public synchronized void setCoachState(CoachStates state) {
+    public synchronized void setCoachState(int state) {
         coachState = state;
         reportStatus();
     }
@@ -58,7 +58,7 @@ public class ContestantsBench {
             System.out.println("Failed to open for appending the file " + logFileName + "!");
             System.exit(1);
         }
-        log.writelnString("Coach State: " + coachState.toString());
+        log.writelnString("Coach State: " + coachState);
         if (!log.close()) {
             System.out.println("Failed to close the file " + logFileName + "!");
             System.exit(1);

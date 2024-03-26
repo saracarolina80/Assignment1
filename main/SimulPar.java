@@ -6,12 +6,6 @@ package main;
 
  public final class SimulPar
  {
-
-     /**
-    *   Number of coaches in the game
-    */
-    public static final int COACHES_NUMBER = 2;
- 
    /**
     *   Number of teams competing in the game.
     */
@@ -32,6 +26,10 @@ package main;
     */
     public static final int KNOCKOUT_THRESHOLD = 4;
  
+    /**
+    *   Strength of the contestant 
+    */
+    public static final int STRENGTH = 5;
    /**
     *   Strength units lost when pulling the rope.
     */
@@ -41,6 +39,12 @@ package main;
     *   Strength units gained when seating at the bench.
     */
     public static final int STRENGTH_GAIN = 1;
+
+
+    /**
+    *  Position ? at the end of the rope for present trial
+    */
+    public static final int POSITION = 3;
  
    /**
     *   It cannot be instantiated.
