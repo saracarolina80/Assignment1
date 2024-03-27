@@ -1,5 +1,6 @@
 package sharedRegions;
 
+import entities.Contestant;
 import entities.PlayState;
 import genclass.TextFile;
 
@@ -95,29 +96,33 @@ public class Playground {
 
     /**
      * End of a trial.
+     * @param contestant 
      */
-    public synchronized void amDone() {
+    public synchronized void amDone(Contestant contestant) {
         setPlaygroundState(PlayState.INITIAL);
     }
 
     /**
      * Pull the rope.
+     * @param contestant 
      */
-    public synchronized void pullTheRope() {
+    public synchronized void pullTheRope(Contestant contestant) {
         setPlaygroundState(PlayState.INITIAL);
     }
 
     /**
      * Get ready for a trial.
+     * @param contestant 
      */
-    public synchronized void getReady() {
+    public synchronized void getReady(Contestant contestant) {
         setPlaygroundState(PlayState.WAIT_FOR_REFEREE_COMMAND);
     }
 
     /**
      * Follow coach's advice.
+     * @param contestant 
      */
-    public synchronized void followCoachAdvice() {
+    public synchronized void followCoachAdvice(Contestant contestant) {
         setPlaygroundState(PlayState.WAIT_FOR_REFEREE_COMMAND);
     }
 }

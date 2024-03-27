@@ -27,6 +27,8 @@ public class GameOfRope
       String fileName;                                         // logging file name
       char opt;                                                // selected option
       boolean success;                                         // end of operation flag
+      Playground playground = new Playground(repos);
+      ContestantsBench bench = new ContestantsBench(repos);
 
      /* problem initialization */
 
@@ -47,12 +49,15 @@ public class GameOfRope
       } while (!success);
 
       repos = new GeneralRepos (fileName);
-      referee = new Referee("Referee", repos);
+
+
+      // CREATE THREADS
+      referee = new Referee("Ref" , repos);
 
       for (int i = 0; i < SimulPar.NUM_TEAMS; i++) {
-          coaches[i] = new Coach("Coach " + (i+1), repos);
+          coaches[i] = new Coach("Coa " + (i+1), repos);
           for (int j = 0; j < SimulPar.TEAM_SIZE; j++) {
-              contestants[i][j] = new Contestant("Contestant " + (i+1) + "-" + (j+1), i, repos);
+              contestants[i][j] = new Contestant("Cont " + (i+1) + (j+1), repos, playground, bench);
           }
       }
 
@@ -87,7 +92,9 @@ public class GameOfRope
           }
       }
       
-      GenericIO.writelnString ();
-      System.out.println("--- End of Simulation --- \n");
+      GenericIO.writelnString("End of Simultation");
+      
+      repos.reportFinalStatus();
+      repos.reportLegend();
     }
 }
