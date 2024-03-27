@@ -3,6 +3,7 @@ package sharedRegions;
 import entities.Contestant;
 import entities.ContestantStates;
 import entities.Coach;
+import entities.CoachStates;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,9 @@ public class ContestantsBench {
                 }
             }
             benchContestants.put(id, remainingPlayers.toArray(new Contestant[0]));
+
+            // Update coach state to assemble team
+            coach.setCoachState(CoachStates.ASSEMBLE_TEAM);
 
             // Awake all contestants to check if they are chosen
             callContestants.signalAll();

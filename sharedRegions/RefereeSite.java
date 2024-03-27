@@ -1,7 +1,13 @@
 package sharedRegions;
 
+import entities.Coach;
+import entities.Contestant;
+import entities.Referee;
 import entities.RefereeStates;
 import genclass.TextFile;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock; 
 
 import java.util.Objects;
 
@@ -15,6 +21,8 @@ import java.util.Objects;
  */
 public class RefereeSite {
 
+    private final ReentrantLock lock;
+
     /**
      * Name of the logging file.
      */
@@ -23,7 +31,7 @@ public class RefereeSite {
     /**
      * State of the referee.
      */
-    private RefereeStates refereeState;
+    private int refereeState;
 
     /**
      * Instantiation of the referee site object.
@@ -44,7 +52,7 @@ public class RefereeSite {
      *
      * @param state referee state
      */
-    public synchronized void setRefereeState(RefereeStates state) {
+    public synchronized void setRefereeState(int state) {
         refereeState = state;
         reportStatus();
     }
@@ -58,7 +66,7 @@ public class RefereeSite {
             System.out.println("Failed to open for appending the file " + logFileName + "!");
             System.exit(1);
         }
-        log.writelnString("Referee State: " + refereeState.toString());
+        log.writelnString("Referee State: " + refereeState);
         if (!log.close()) {
             System.out.println("Failed to close the file " + logFileName + "!");
             System.exit(1);
@@ -67,43 +75,66 @@ public class RefereeSite {
 
     /**
      * Announce a new game.
+     * @param referee 
      */
-    public synchronized void announceNewGame() {
-        setRefereeState(RefereeStates.START_OF_A_GAME);
+    public synchronized void announceNewGame(Referee referee) {
+        int id = (int) referee.getId();
+        try {
+            lock.lock();
+            System.out.println("REFEREE " + id + " is announcing new game");
+            setRefereeState(RefereeStates.START_OF_A_GAME);
+        } finally {
+           lock.unlock(); 
+        }
     }
 
     /**
      * Call for a new trial.
+     * @param referee 
      */
-    public synchronized void callTrial() {
+    public synchronized void callTrial(Referee referee) {
         setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
     }
 
     /**
      * Inform the referee that teams are ready.
+     * @param coach 
      */
-    public synchronized void informReferee() {
+    public synchronized void informReferee(Coach coach) {
         setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
     }
 
     /**
      * Review notes after a trial.
+     * @param coach 
      */
-    public synchronized void reviewNotes() {
+    public synchronized void reviewNotes(Coach coach) {
         setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
     }
 
     /**
      * Declare the winner of the game.
+     * @param referee 
      */
-    public synchronized void declareGameWinner() {
+    public synchronized void declareGameWinner(Referee referee) {
         setRefereeState(RefereeStates.END_OF_A_GAME);
     }
 
     /**
      * Declare the winner of the match.
+     * @param referee 
      */
-    public synchronized void declareMatchWinner() {
+    public synchronized void declareMatchWinner(Referee referee) {
         setRefereeState(RefereeStates.END_OF_THE_MATCH);
+    }
+
+    public void callTrial(Referee referee) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'callTrial'");
+    }
+
+    public void declareMatchWinner(Referee referee) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'declareMatchWinner'");
     }
 }
