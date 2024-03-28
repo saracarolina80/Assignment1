@@ -27,8 +27,6 @@ public class GameOfRope
       String fileName;                                         // logging file name
       char opt;                                                // selected option
       boolean success;                                         // end of operation flag
-      Playground playground = new Playground(repos);
-      ContestantsBench bench = new ContestantsBench(repos);
 
      /* problem initialization */
 
@@ -50,12 +48,16 @@ public class GameOfRope
 
       repos = new GeneralRepos (fileName);
 
+      Playground playground = new Playground(fileName);
+      ContestantsBench bench = new ContestantsBench(fileName);
+      RefereeSite refereeSite = new RefereeSite(fileName);
+
 
       // CREATE THREADS
-      referee = new Referee("Ref" , repos);
+      referee = new Referee("Ref" , refereeSite , playground);
 
       for (int i = 0; i < SimulPar.NUM_TEAMS; i++) {
-          coaches[i] = new Coach("Coa " + (i+1), repos);
+          coaches[i] = new Coach("Coa " + (i+1), bench, refereeSite , playground);
           for (int j = 0; j < SimulPar.TEAM_SIZE; j++) {
               contestants[i][j] = new Contestant("Cont " + (i+1) + (j+1), repos, playground, bench);
           }

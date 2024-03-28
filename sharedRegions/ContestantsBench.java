@@ -2,6 +2,7 @@ package sharedRegions;
 
 import entities.Contestant;
 import entities.ContestantStates;
+import genclass.TextFile;
 import entities.Coach;
 import entities.CoachStates;
 
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -20,10 +22,85 @@ public class ContestantsBench {
     private final HashMap<Integer, Contestant[]> benchContestants = new HashMap<>();
     private final HashMap<Integer, Contestant[]> chosenContestants = new HashMap<>();
 
-    public ContestantsBench() {
+    /**
+     * Name of the logging file.
+     */
+    private final String logFileName;
+
+    /**
+     * State of the referee.
+     */
+    private int refereeState;
+
+    /**
+     * State of the coach.
+     */
+    private int coachState;
+
+    /**
+     * State of the contestant.
+     */
+    private int contState;
+
+    public ContestantsBench(String logFileName) {
         lock = new ReentrantLock(true);
         callContestants = lock.newCondition();
+        if ((logFileName == null) || Objects.equals(logFileName, ""))
+            this.logFileName = "logger";
+        else
+            this.logFileName = logFileName;
+        reportStatus();
     }
+
+    /**
+     * Write the current state to the logging file.
+     */
+    private void reportStatus() {
+        TextFile log = new TextFile();
+        if (!log.openForAppending(".", logFileName)) {
+            System.out.println("Failed to open for appending the file " + logFileName + "!");
+            System.exit(1);
+        }
+        log.writelnString("Referee State: " + refereeState);
+        log.writelnString("Coach State: " + coachState);
+        log.writelnString("Contestant State: " + contState);
+        if (!log.close()) {
+            System.out.println("Failed to close the file " + logFileName + "!");
+            System.exit(1);
+        }
+    }
+
+        /**
+     * Set referee state.
+     *
+     * @param state referee state
+     */
+    public synchronized void setRefereeState(int state) {
+        refereeState = state;
+        reportStatus();
+    }
+
+    /**
+     * Set coach state.
+     *
+     * @param Cstate coach state
+     */
+    public synchronized void setCoachState(int Cstate) {
+        coachState = Cstate;
+        reportStatus();
+    }
+
+
+    /**
+     * Set contestant state.
+     *
+     * @param state contestant state
+     */
+    public synchronized void setContestantState(int state) {
+        contState = state;
+        reportStatus();
+    }
+
 
     public void callContestants(Coach coach) {
         int id = (int) coach.getId();
@@ -62,7 +139,7 @@ public class ContestantsBench {
             benchContestants.put(id, remainingPlayers.toArray(new Contestant[0]));
 
             // Update coach state to assemble team
-            coach.setCoachState(CoachStates.ASSEMBLE_TEAM);
+            setCoachState(CoachStates.ASSEMBLE_TEAM);
 
             // Awake all contestants to check if they are chosen
             callContestants.signalAll();
@@ -90,7 +167,7 @@ public class ContestantsBench {
             System.out.println("CONTESTANT " + id + " added themselves to the bench");
             
             // Update contestant state to reflect sitting at the bench
-            contestant.setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
+            setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
 
             // Wait until they are called
             while (!isContestantInChosenPlayers(teamId, contestant, chosenContestants)) {

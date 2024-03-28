@@ -1,7 +1,9 @@
 package sharedRegions;
 
 import entities.Coach;
+import entities.CoachStates;
 import entities.Contestant;
+import entities.ContestantStates;
 import entities.Referee;
 import genclass.TextFile;
 
@@ -21,6 +23,12 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Playground {
     private final ReentrantLock lock;
+
+    private final Condition contestantArrived;
+    private final Condition assertTrialDecision;
+    private final Condition startTrial;
+    private final Condition amDone;
+
     private int startTrialCount = 0;
     private int assertTrialDecisionCount = 0;
     private int amDoneCount = 0;
@@ -28,10 +36,42 @@ public class Playground {
     private HashMap<Integer , Contestant[]> playground_contestants = new HashMap<>();
 
     /**
-     * Instantiation of the playground object.
+     * Name of the logging file.
      */
-    public Playground() {
+    private final String logFileName;
+
+    /**
+     * State of the referee.
+     */
+    private int refereeState;
+
+    /**
+     * State of the coach.
+     */
+    private int coachState;
+
+    /**
+     * State of the contestant.
+     */
+    private int contState;
+
+
+
+
+    /**
+     * Instantiation of the playground object.
+     *  @param logFileName name of the logging file
+     */
+    public Playground(String logFileName) {
         lock = new ReentrantLock(true);
+        contestantArrived = lock.newCondition();
+        assertTrialDecision = lock.newCondition();
+        startTrial = lock.newCondition();
+        amDone = lock.newCondition();
+        if ((logFileName == null) || Objects.equals(logFileName, ""))
+            this.logFileName = "logger";
+        else
+            this.logFileName = logFileName;
         reportStatus();
     }
 
@@ -39,7 +79,47 @@ public class Playground {
      * Write the current state to the logging file.
      */
     private void reportStatus() {
-        // Implementation omitted for brevity
+        TextFile log = new TextFile();
+        if (!log.openForAppending(".", logFileName)) {
+            System.out.println("Failed to open for appending the file " + logFileName + "!");
+            System.exit(1);
+        }
+        log.writelnString("Referee State: " + refereeState);
+        log.writelnString("Coach State: " + coachState);
+        log.writelnString("Contestant State: " + contState);
+        if (!log.close()) {
+            System.out.println("Failed to close the file " + logFileName + "!");
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Set referee state.
+     *
+     * @param state referee state
+     */
+    public synchronized void setRefereeState(int state) {
+        refereeState = state;
+        reportStatus();
+    }
+
+    /**
+     * Set coach state.
+     *
+     * @param Cstate coach state
+     */
+    public synchronized void setCoachState(int Cstate) {
+        coachState = Cstate;
+        reportStatus();
+    }
+    /**
+     * Set contestant state.
+     *
+     * @param state contestant state
+     */
+    public synchronized void setContestantState(int state) {
+        contState = state;
+        reportStatus();
     }
 
     /**
@@ -51,15 +131,16 @@ public class Playground {
 
         try {
             lock.lock();
-            while (contestantCount .get(id) != 3) {         // 3 jogadores para o trial
+            while (contestantCount.get(id) != 3) {         // 3 jogadores para o trial
                 try {
-                    athleteArrived.await();
+                    contestantArrived.await();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     e.printStackTrace();
                 }
             }
             contestantCount.put(id, 0);
+
         } finally {
             lock.unlock();
         }
@@ -70,24 +151,24 @@ public class Playground {
      * @param coach 
      */
     public void watchTrial(Coach coach) {
-        int id = Thread.currentThread().getId(); // Assuming coaches are threads
+        int id = (int) coach.getId();
 
         try {
             lock.lock();
-            while (assertTrialDecisionCount == 0) {
-                try {
+            System.out.println("COACH " + id + " is gonna start watching trial");
+            while(assertTrialDecisionCount == 0){
+                try{
+                    System.out.println("COACH " + id + " is waiting watching trial");
                     assertTrialDecision.await();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    e.printStackTrace();
-                }
+                    System.out.println("COACH " + id + " received trial decision");
+                } catch (InterruptedException e){}
             }
-            assertTrialDecisionCount--;
+            System.out.println("COACH " + id + " will proceed with trial decision");
+            assertTrialDecisionCount = assertTrialDecisionCount - 1;
         } finally {
             lock.unlock();
         }
     }
-
     /**
      * Assert the trial decision.
      * @param referee 
@@ -157,6 +238,7 @@ public class Playground {
             System.out.println("ATHLETE " + id + " added themselves to the playground list.");
             contestantArrived.signalAll();
             System.out.println("ATHLETE " + id + " signaled arrival to coaches");
+            setContestantState(ContestantStates.STAND_IN_POSITION);
         } finally {
             lock.unlock();
         }
