@@ -3,6 +3,7 @@ package sharedRegions;
 import entities.Contestant;
 import entities.ContestantStates;
 import genclass.TextFile;
+import main.SimulPar;
 import entities.Coach;
 import entities.CoachStates;
 
@@ -49,8 +50,15 @@ public class ContestantsBench {
             this.logFileName = "logger";
         else
             this.logFileName = logFileName;
+            
+         // Inicializa o hashmap benchContestants com listas vazias para cada treinador
+        for (int i = 1; i <= SimulPar.NUM_TEAMS; i++) {
+            benchContestants.put(i, new Contestant[0]);
+        }
+
         reportStatus();
     }
+
 
     /**
      * Write the current state to the logging file.

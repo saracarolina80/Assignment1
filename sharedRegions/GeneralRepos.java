@@ -93,7 +93,7 @@ public class GeneralRepos {
         }
 
         contestantState = new int[SimulPar.TEAM_SIZE]; 
-        contestant_strength = new int[0];
+        contestant_strength = new int[SimulPar.TEAM_SIZE];    
         for (int i = 0; i < SimulPar.TEAM_SIZE ; i++){
             contestantState[i] = ContestantStates.SEAT_AT_THE_BENCH;    //  CONTESTANT INITIAL STATE
             contestant_strength[i] = SimulPar.STRENGTH;
