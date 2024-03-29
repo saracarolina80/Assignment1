@@ -21,8 +21,11 @@ public class ContestantsBench {
 
     private final ReentrantLock lock;
     private final Condition callContestants;
+    private final Condition allContestantSeated;
     private final HashMap<Integer, Contestant[]> benchContestants = new HashMap<>();
     private final HashMap<Integer, Contestant[]> chosenContestants = new HashMap<>();
+    private int[] callContestantsCount = {0, 0};
+
 
     /**
      * Name of the logging file.
@@ -47,6 +50,7 @@ public class ContestantsBench {
     public ContestantsBench(String logFileName) {
         lock = new ReentrantLock(true);
         callContestants = lock.newCondition();
+        allContestantSeated = lock.newCondition();
         if ((logFileName == null) || Objects.equals(logFileName, ""))
             this.logFileName = "logger";
         else
@@ -166,7 +170,10 @@ public class ContestantsBench {
         String contestantName = contestant.getName();
 
         String[] partes = contestantName.split(" ");
-        int teamId = Integer.parseInt(partes[1]); 
+        char teamChar = partes[1].charAt(0); 
+        int teamId = Character.getNumericValue(teamChar); 
+        
+        System.out.println("teamid: " + teamId);
         // Update contestant state to reflect sitting at the bench
         setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
         try {
@@ -185,18 +192,24 @@ public class ContestantsBench {
             
             
 
-            // Wait until they are called
-            while (!isContestantInChosenPlayers(teamId, contestant, chosenContestants)) {
-                try {
-                    System.out.println("CONTESTANT " + contestantName + " is waiting");
-                    callContestants.await();
-                    System.out.println("CONTESTANT " + contestantName + " is awaken");
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            System.out.println("CONTESTANT " + contestantName + " is called to the team");
+            
+        // Signal when all athletes are seated
+        if (benchContestants.get(teamId).length == 5) {
+            allContestantSeated.signalAll();
+        }
 
+        // Wait until they are called
+        while(callContestantsCount[teamId-1] == 0){
+            try{
+                System.out.println("CONTESTANT " + contestantName + " is waiting");
+                callContestants.await();
+                System.out.println("CONTESTANT " + contestantName + " is awaken");
+            } catch (InterruptedException e){}
+        }
+        System.out.println("CONTESTANT " + contestantName + " decrements callContestantsCount");
+        callContestantsCount[teamId-1]--;
+
+        if (isContestantInChosenPlayers(teamId, contestant, chosenContestants)){
             // Remove from chosenPlayers
             Contestant[] chosenList = chosenContestants.get(teamId);
             int indexToRemove = -1;
@@ -210,10 +223,31 @@ public class ContestantsBench {
             System.arraycopy(chosenList, 0, newArray, 0, indexToRemove);
             System.arraycopy(chosenList, indexToRemove + 1, newArray, indexToRemove, chosenList.length - indexToRemove - 1);
             chosenContestants.put(teamId, newArray);
-        } finally {
-            lock.unlock();
+
+            
+        } else {
+            //Will not play, means that it should get +1 strength
+            contestant.incrementStrength();
+            // Remove from benchPlayers
+            Contestant[] benchList = benchContestants.get(teamId);
+            int indexToRemove = -1;
+            for (int i = 0; i < benchList.length; i++) {
+                if (benchList[i].equals(contestantName)) {
+                    indexToRemove = i;
+                    break;
+                }
+            }
+            Contestant[] newArray = new Contestant[benchList.length - 1];
+            System.arraycopy(benchList, 0, newArray, 0, indexToRemove);
+            System.arraycopy(benchList, indexToRemove + 1, newArray, indexToRemove, benchList.length - indexToRemove - 1);
+            benchContestants.put(teamId, newArray);
+
         }
+    } finally {
+        lock.unlock();
     }
+}
+
 
 
     private boolean isContestantInChosenPlayers(int teamId, Contestant contestant, HashMap<Integer, Contestant[]> chosenPlayers) {

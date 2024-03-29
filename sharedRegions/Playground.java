@@ -291,7 +291,8 @@ public class Playground {
         String contestantName = contestant.getName();
 
         String[] partes = contestantName.split(" ");
-        int teamId = Integer.parseInt(partes[1]); 
+        char teamChar = partes[1].charAt(0); 
+        int teamId = Character.getNumericValue(teamChar);
 
         // Signal amDone
         try {
@@ -385,7 +386,8 @@ public class Playground {
         String contestantName = contestant.getName();
 
         String[] partes = contestantName.split(" ");
-        int teamId = Integer.parseInt(partes[1]); 
+        char teamChar = partes[1].charAt(0); 
+        int teamId = Character.getNumericValue(teamChar);
 
         setContestantState(ContestantStates.STAND_IN_POSITION);
         try {
