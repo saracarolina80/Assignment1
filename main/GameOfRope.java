@@ -55,11 +55,16 @@ public class GameOfRope
 
       // CREATE THREADS
       referee = new Referee("Ref" , refereeSite , playground);
+      System.out.println("Created thread: " + referee);
 
       for (int i = 0; i < SimulPar.NUM_TEAMS; i++) {
           coaches[i] = new Coach("Coa " + (i+1), bench, refereeSite , playground);
+          System.out.println("Created thread: " + coaches[i]);
+
           for (int j = 0; j < SimulPar.TEAM_SIZE; j++) {
               contestants[i][j] = new Contestant("Cont " + (i+1) + (j+1), repos, playground, bench);
+              System.out.println("Created thread: " + contestants[i][j]);
+
           }
       }
 
@@ -94,7 +99,7 @@ public class GameOfRope
           }
       }
       
-      GenericIO.writelnString("End of Simultation");
+      GenericIO.writelnString("End of Simulation");
       
       repos.reportFinalStatus();
       repos.reportLegend();

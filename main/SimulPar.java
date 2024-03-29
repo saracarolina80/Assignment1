@@ -11,6 +11,8 @@ package main;
     */
     public static final int NUM_TEAMS = 2;
  
+    public static final int NUM_GAMES = 3;
+    
    /**
     *   Number of contestants in each team.
     */

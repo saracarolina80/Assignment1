@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -111,24 +112,29 @@ public class ContestantsBench {
 
 
     public void callContestants(Coach coach) {
-        int id = (int) coach.getId();
-        int chooseMode = coach.getChooseMode();
+        String coachName = coach.getName();
+
+        String[] partes = coachName.split(" ");
+        int coachId = Integer.parseInt(partes[1]); 
+       
+        Random random = new Random();
+        int chooseMode = random.nextInt(2);
 
         try {
             lock.lock();
-            System.out.println("COACH " + id + " is choosing the team");
-            Contestant[] listOfContestants = benchContestants.get(id);
+            System.out.println("COACH " + coachName + " is choosing the team");
+            Contestant[] listOfContestants = benchContestants.get(coachId);
             if (chooseMode == 1) {
                 // Choose the top 3 strengths
-                System.out.println("COACH " + id + " choose mode STRENGTH");
+                System.out.println("COACH " + coachName + " choose mode STRENGTH");
                 Arrays.sort(listOfContestants, (c1, c2) -> Integer.compare(c2.getStrength(), c1.getStrength()));
             } else {
                 // Choose Random
-                System.out.println("COACH " + id + " choose mode RANDOM");
+                System.out.println("COACH " + coachName + " choose mode RANDOM");
                 Collections.shuffle(Arrays.asList(listOfContestants));
             }
             Contestant[] chosen = Arrays.copyOfRange(listOfContestants, 0, 3);
-            chosenContestants.put(id, chosen);
+            chosenContestants.put(coachId, chosen);
 
             // Remove chosen players from benchPlayers
             List<Contestant> remainingPlayers = new ArrayList<>();
@@ -144,7 +150,7 @@ public class ContestantsBench {
                     remainingPlayers.add(player);
                 }
             }
-            benchContestants.put(id, remainingPlayers.toArray(new Contestant[0]));
+            benchContestants.put(coachId, remainingPlayers.toArray(new Contestant[0]));
 
             // Update coach state to assemble team
             setCoachState(CoachStates.ASSEMBLE_TEAM);
@@ -157,9 +163,12 @@ public class ContestantsBench {
     }
 
     public void sitDown(Contestant contestant) {
-        int id = (int) contestant.getId();
-        int teamId = id / 10;
+        String contestantName = contestant.getName();
 
+        String[] partes = contestantName.split(" ");
+        int teamId = Integer.parseInt(partes[1]); 
+        // Update contestant state to reflect sitting at the bench
+        setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
         try {
             lock.lock();
             // Add contestant to the benchPlayers list
@@ -172,22 +181,21 @@ public class ContestantsBench {
                 updatedList[listOfContestants.length] = contestant;
                 benchContestants.put(teamId, updatedList);
             }
-            System.out.println("CONTESTANT " + id + " added themselves to the bench");
+            System.out.println("CONTESTANT " + contestantName + " added themselves to the bench");
             
-            // Update contestant state to reflect sitting at the bench
-            setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
+            
 
             // Wait until they are called
             while (!isContestantInChosenPlayers(teamId, contestant, chosenContestants)) {
                 try {
-                    System.out.println("CONTESTANT " + id + " is waiting");
+                    System.out.println("CONTESTANT " + contestantName + " is waiting");
                     callContestants.await();
-                    System.out.println("CONTESTANT " + id + " is awaken");
+                    System.out.println("CONTESTANT " + contestantName + " is awaken");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
-            System.out.println("CONTESTANT " + id + " is called to the team");
+            System.out.println("CONTESTANT " + contestantName + " is called to the team");
 
             // Remove from chosenPlayers
             Contestant[] chosenList = chosenContestants.get(teamId);

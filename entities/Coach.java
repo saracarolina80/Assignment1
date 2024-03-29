@@ -9,6 +9,8 @@ public class Coach extends Thread {
     private int coachState;
     private int chooseContestants;
 
+
+
     public Coach(String name, ContestantsBench bench, RefereeSite refereeSite, Playground playground) {
         super(name);
         this.bench = bench;
@@ -19,20 +21,28 @@ public class Coach extends Thread {
 
     @Override
     public void run() {
-        switch (coachState) {
-            case CoachStates.WAIT_FOR_REFEREE_COMMAND:
-                bench.callContestants(this);
-                break;
-            case CoachStates.ASSEMBLE_TEAM:
-                playground.waitAthletes(this);
-                break;
-            case CoachStates.WATCH_TRIAL:
-                refereeSite.informReferee(this);
-                playground.watchTrial(this);
-                break;
-            case CoachStates.END_OF_THE_MATCH:
-                refereeSite.reviewNotes(this);
-                break;
+        try {
+            Thread.sleep(2000); // 2000 milliseconds = 2 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        refereeSite.waitNewGame(this);
+        while (!playground.isMatchFinished(this)) {
+            switch (coachState) {
+                case CoachStates.WAIT_FOR_REFEREE_COMMAND:
+                    bench.callContestants(this);
+                    break;
+                case CoachStates.ASSEMBLE_TEAM:
+                    playground.waitAthletes(this);
+                    break;
+                case CoachStates.WATCH_TRIAL:
+                    refereeSite.informReferee(this);
+                    playground.watchTrial(this);
+                    break;
+                case CoachStates.END_OF_THE_MATCH:
+                    refereeSite.reviewNotes(this);
+                    break;
+            }
         }
     }
     // BEST 3 OR RANDOM

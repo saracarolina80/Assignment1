@@ -3,7 +3,7 @@ Ref Coa 1 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Coa 2 Cont 1 Cont 2 Cont 3 Cont 4 C
 Sta  Stat Sta SG Sta SG Sta SG Sta SG Sta SG  Stat Sta SG Sta SG Sta SG Sta SG Sta SG 3 2 1 . 1 2 3 NB PS
   REFEREE           COACHES                          CONTESTANTS
 Stat |  St  Id  Id  St | St Id Id | St Id Id Id Id
- ST_GAME  WAIT_RC  WAIT_RC  SEAT_B  SEAT_B  SEAT_B  SEAT_B  SEAT_B 
+ ST_MATCH   WAIT_RC  WAIT_RC  SEAT_B  SEAT_B  SEAT_B  SEAT_B  SEAT_B 
 Referee State: 0
 Coach State: 0
 Contestant State: 0
@@ -12,35 +12,39 @@ Coach State: 0
 Contestant State: 0
 Referee State: 0
 Coach State: 0
-Referee State: 1
-Coach State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
 Referee State: 0
 Coach State: 0
-Contestant State: 1
+Contestant State: 0
+Referee State: 0
+Coach State: 1
+Contestant State: 0
+Referee State: 0
+Coach State: 1
+Contestant State: 0

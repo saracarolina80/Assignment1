@@ -1,5 +1,6 @@
 package entities;
 
+import main.SimulPar;
 import sharedRegions.*;
 
 public class Referee extends Thread {
@@ -7,39 +8,46 @@ public class Referee extends Thread {
     private final Playground playground;
     private int refereeState;
 
+
     public Referee(String name, RefereeSite refereeSite, Playground playground) {
         super(name);
         this.refereeSite = refereeSite;
         this.playground = playground;
-        this.refereeState = RefereeStates.START_OF_THE_MATCH;
+        refereeState = RefereeStates.START_OF_THE_MATCH;
     }
 
-    @Override
+     @Override
     public void run() {
-        switch (refereeState) {
-            case RefereeStates.START_OF_THE_MATCH:
-                refereeSite.announceNewGame(this);
-                break;
-            case RefereeStates.START_OF_A_GAME:
+        int winner = 0;
+
+        for (int numGames = 0; numGames < SimulPar.NUM_GAMES; numGames++) {
+            refereeSite.announceNewGame(this);
+
+            int numTrials = 0;
+            int ropePosition = 0;
+
+            while (numTrials < SimulPar.NUM_TRIALS && Math.abs(ropePosition) != SimulPar.KNOCKOUT_THRESHOLD) {
+                playground.signalMatchStatus(false);
                 refereeSite.callTrial(this);
-                playground.assertTrialDecision(this);
-                break;
-            case RefereeStates.TEAMS_READY:
                 playground.startTrial(this);
-                break;
-            case RefereeStates.WAIT_FOR_TRIAL_CONCLUSION:
-                refereeSite.callTrial(this);
-                playground.assertTrialDecision(this);
-                refereeSite.declareGameWinner(this);
-                break;
-            case RefereeStates.END_OF_A_GAME:
-                refereeSite.announceNewGame(this);
-                refereeSite.declareMatchWinner(this);
-                break;
-            case RefereeStates.END_OF_THE_MATCH:
-                break;
+                ropePosition = playground.assertTrialDecision(this, ropePosition);
+                numTrials++;
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {}
+
+                System.out.println("\n\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!NUM TRIALS : " + numTrials + "!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+                System.out.println("Math.abs(ropePosition) = " + Math.abs(ropePosition));
+            }
+
+            winner += refereeSite.declareGameWinner(this, ropePosition);
         }
+
+        playground.signalMatchStatus(true);
+        refereeSite.declareMatchWinner(this, winner);
     }
+    
     public void setRefereeState(int newRefereeState) {
         switch (newRefereeState) {
             case RefereeStates.START_OF_THE_MATCH:

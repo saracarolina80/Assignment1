@@ -1,5 +1,5 @@
 # clean target
-# rm -rf target/
+rm -rf target/
 
 echo "Compiling source code..."
 javac -cp lib/genclass.jar -d target -sourcepath . main/GameOfRope.java entities/*.java sharedRegions/*.java
