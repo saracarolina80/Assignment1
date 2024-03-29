@@ -27,7 +27,7 @@ public class Coach extends Thread {
             e.printStackTrace();
         }
         refereeSite.waitNewGame(this);
-        while (!playground.isMatchFinished(this)) {
+    //    while (!playground.isMatchFinished(this)) {
             switch (coachState) {
                 case CoachStates.WAIT_FOR_REFEREE_COMMAND:
                     bench.callContestants(this);
@@ -43,7 +43,7 @@ public class Coach extends Thread {
                     refereeSite.reviewNotes(this);
                     break;
             }
-        }
+      //  }
     }
     // BEST 3 OR RANDOM
     public int getChooseMode() {

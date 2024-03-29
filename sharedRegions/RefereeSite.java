@@ -192,24 +192,6 @@ public class RefereeSite {
         setCoachState(CoachStates.WATCH_TRIAL);
     }
 
-    public synchronized void assertTrialDecision(Referee referee) {
-        try {
-            lock.lock();
-            while (trialCallCount == 0) {
-                try {
-                    trialConclusion.await(); // Referee waits until trial conclusion
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            trialCallCount--;
-            setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-
     /**
      * Review notes after a trial.
      * @param coach 

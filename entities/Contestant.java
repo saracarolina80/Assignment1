@@ -36,7 +36,7 @@ public class Contestant extends Thread {
 
     @Override
     public void run() {
-        while (!playground.isMatchFinished(this)) {
+       // while (!playground.isMatchFinished(this)) {
             bench.sitDown(this);
             switch (contestantState) {
                 case ContestantStates.SEAT_AT_THE_BENCH:
@@ -53,7 +53,7 @@ public class Contestant extends Thread {
                 default:
                     break;
             }
-    }
+   // }
 
     }
     public void setContestantState(int newContestantState) {
