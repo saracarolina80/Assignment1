@@ -32,6 +32,7 @@ public class ContestantsBench {
      */
     private final String logFileName;
 
+    GeneralRepos repos;
     /**
      * State of the referee.
      */
@@ -60,6 +61,7 @@ public class ContestantsBench {
         for (int i = 1; i <= SimulPar.NUM_TEAMS; i++) {
             benchContestants.put(i, new Contestant[0]);
         }
+        repos = new GeneralRepos(logFileName);
 
         reportStatus();
     }
@@ -74,9 +76,7 @@ public class ContestantsBench {
             System.out.println("Failed to open for appending the file " + logFileName + "!");
             System.exit(1);
         }
-        log.writelnString("Referee State: " + refereeState);
-        log.writelnString("Coach State: " + coachState);
-        log.writelnString("Contestant State: " + contState);
+        repos.reportStatus();
         if (!log.close()) {
             System.out.println("Failed to close the file " + logFileName + "!");
             System.exit(1);

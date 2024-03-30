@@ -21,11 +21,6 @@ public class Coach extends Thread {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(2000); // 2000 milliseconds = 2 seconds
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         refereeSite.waitNewGame(this);
     //    while (!playground.isMatchFinished(this)) {
             switch (coachState) {
@@ -34,13 +29,14 @@ public class Coach extends Thread {
                     break;
                 case CoachStates.ASSEMBLE_TEAM:
                     playground.waitAthletes(this);
+                    refereeSite.informReferee(this);
                     break;
                 case CoachStates.WATCH_TRIAL:
-                    refereeSite.informReferee(this);
                     playground.watchTrial(this);
+                    refereeSite.reviewNotes(this);
                     break;
                 case CoachStates.END_OF_THE_MATCH:
-                    refereeSite.reviewNotes(this);
+                    refereeSite.waitNewGame(this);
                     break;
             }
       //  }

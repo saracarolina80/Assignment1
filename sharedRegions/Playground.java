@@ -62,6 +62,7 @@ public class Playground {
      */
     private int contState;
 
+    GeneralRepos repos ;
 
 
 
@@ -80,6 +81,7 @@ public class Playground {
             this.logFileName = "logger";
         else
             this.logFileName = logFileName;
+        repos = new GeneralRepos(logFileName);
         reportStatus();
     }
 
@@ -92,9 +94,8 @@ public class Playground {
             System.out.println("Failed to open for appending the file " + logFileName + "!");
             System.exit(1);
         }
-        log.writelnString("Referee State: " + refereeState);
-        log.writelnString("Coach State: " + coachState);
-        log.writelnString("Contestant State: " + contState);
+        
+        repos.reportStatus();
         if (!log.close()) {
             System.out.println("Failed to close the file " + logFileName + "!");
             System.exit(1);

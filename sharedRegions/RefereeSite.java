@@ -50,6 +50,8 @@ public class RefereeSite {
     private int coachState;
 
 
+    GeneralRepos repos;
+
 
     /**
      * Instantiation of the referee site object.
@@ -71,8 +73,8 @@ public class RefereeSite {
             this.logFileName = "logger";
         else
             this.logFileName = logFileName;
+        repos = new GeneralRepos(logFileName);
         refereeState = RefereeStates.START_OF_THE_MATCH;
-        // coachState = CoachStates.WAIT_FOR_REFEREE_COMMAND;
         reportStatus();
     }
 
@@ -105,8 +107,8 @@ public class RefereeSite {
             System.out.println("Failed to open for appending the file " + logFileName + "!");
             System.exit(1);
         }
-        log.writelnString("Referee State: " + refereeState);
-        log.writelnString("Coach State: " + coachState);
+        repos.reportStatus();
+
         if (!log.close()) {
             System.out.println("Failed to close the file " + logFileName + "!");
             System.exit(1);

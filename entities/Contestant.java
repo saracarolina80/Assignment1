@@ -48,6 +48,7 @@ public class Contestant extends Thread {
                 case ContestantStates.DO_YOUR_BEST:
                     playground.pullTheRope(this);
                     playground.amDone(this);
+                case ContestantStates.END_OF_THE_MATCH:
                     bench.sitDown(this);
                     break;
                 default:
