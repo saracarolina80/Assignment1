@@ -90,7 +90,7 @@ public class GeneralRepos {
         coachState = new int [SimulPar.NUM_TEAMS];              // NUM_TEAMS = 2 = NUM_COACHES          
         for (int i = 0; i < SimulPar.NUM_TEAMS; i++) {
             coachState[i] = CoachStates.WAIT_FOR_REFEREE_COMMAND;       // COACH INITIAL STATE
-            System.out.println("State COACH: " + coachState[i]);
+        //    System.out.println("State COACH: " + coachState[i]);
         }
 
         contestantState = new int[SimulPar.NUM_TEAMS][SimulPar.TEAM_SIZE]; 
@@ -99,10 +99,10 @@ public class GeneralRepos {
             for (int i = 0; i < SimulPar.TEAM_SIZE ; i++){
                 contestantState[j][i] = ContestantStates.SEAT_AT_THE_BENCH;    //  CONTESTANT INITIAL STATE
                 contestant_strength[j][i] = SimulPar.STRENGTH;
-                System.out.println("State C: " + contestantState[j][i] + " Strength: " + contestant_strength[j][i]);
+             //   System.out.println("State C: " + contestantState[j][i] + " Strength: " + contestant_strength[j][i]);
         }
     }
-        System.out.println("State R: " + refereeState);
+     //   System.out.println("State R: " + refereeState);
         
 
         trial_number = 1;

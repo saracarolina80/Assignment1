@@ -126,17 +126,32 @@ public class ContestantsBench {
 
         try {
             lock.lock();
+            // Wait until all athletes are seated at the bench
+            while (benchContestants.get(coachId).length < 5) {
+                try {
+                    System.out.println("COACH " + coachName + " is waiting for all athletes to sit down");
+                    allContestantSeated.await(); // Wait for all athletes to sit down
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("All CONTESTANTS of team" + coachId + " seated"    );
             System.out.println("COACH " + coachName + " is choosing the team");
+             // Update coach state to assemble team
+             setCoachState(CoachStates.ASSEMBLE_TEAM);
             Contestant[] listOfContestants = benchContestants.get(coachId);
+   
             if (chooseMode == 1) {
                 // Choose the top 3 strengths
                 System.out.println("COACH " + coachName + " choose mode STRENGTH");
-                Arrays.sort(listOfContestants, (c1, c2) -> Integer.compare(c2.getStrength(), c1.getStrength()));
+                Arrays.sort(listOfContestants, (a1, a2) -> Integer.compare(a2.getStrength(), a1.getStrength()));
             } else {
                 // Choose Random
                 System.out.println("COACH " + coachName + " choose mode RANDOM");
                 Collections.shuffle(Arrays.asList(listOfContestants));
             }
+
             Contestant[] chosen = Arrays.copyOfRange(listOfContestants, 0, 3);
             chosenContestants.put(coachId, chosen);
 
@@ -155,12 +170,23 @@ public class ContestantsBench {
                 }
             }
             benchContestants.put(coachId, remainingPlayers.toArray(new Contestant[0]));
-
-            // Update coach state to assemble team
-            setCoachState(CoachStates.ASSEMBLE_TEAM);
+            for (Contestant athlete : benchContestants.get(coachId)) {
+                System.out.print("BENCH: "  + athlete.getName() + " ");
+            }
+            System.out.println();
+            for (Contestant athlete : chosenContestants.get(coachId)) {
+                if(athlete != null) {
+                System.out.print("Chosen:" + athlete.getName() + " ");
+                } else {
+                    System.out.println("ERROR");
+                }
+            }
+           
 
             // Awake all contestants to check if they are chosen
+            callContestantsCount[coachId-1] = SimulPar.TEAM_SIZE;
             callContestants.signalAll();
+
         } finally {
             lock.unlock();
         }
@@ -172,8 +198,7 @@ public class ContestantsBench {
         String[] partes = contestantName.split(" ");
         char teamChar = partes[1].charAt(0); 
         int teamId = Character.getNumericValue(teamChar); 
-        
-        System.out.println("teamid: " + teamId);
+
         // Update contestant state to reflect sitting at the bench
         setContestantState(ContestantStates.SEAT_AT_THE_BENCH);
         try {
@@ -200,6 +225,7 @@ public class ContestantsBench {
 
         // Wait until they are called
         while(callContestantsCount[teamId-1] == 0){
+            System.out.println(callContestantsCount[teamId-1]);
             try{
                 System.out.println("CONTESTANT " + contestantName + " is waiting");
                 callContestants.await();
@@ -232,7 +258,7 @@ public class ContestantsBench {
             Contestant[] benchList = benchContestants.get(teamId);
             int indexToRemove = -1;
             for (int i = 0; i < benchList.length; i++) {
-                if (benchList[i].equals(contestantName)) {
+                if (benchList[i].equals(contestant)) {
                     indexToRemove = i;
                     break;
                 }
@@ -248,17 +274,27 @@ public class ContestantsBench {
     }
 }
 
-
-
-    private boolean isContestantInChosenPlayers(int teamId, Contestant contestant, HashMap<Integer, Contestant[]> chosenPlayers) {
-        Contestant[] players = chosenPlayers.get(teamId);
-        if (players != null) {
-            for (Contestant player : players) {
-                if (player.equals(contestant)) {
-                    return true;
+    private boolean isContestantInChosenPlayers(int teamId, Contestant contestant, HashMap<Integer, Contestant[]> chosenContestants) {
+        if (chosenContestants.containsKey(teamId)) {
+            Contestant[] contestants = chosenContestants.get(teamId);
+            if (contestants != null) {
+                for (Contestant cont : contestants) {
+                    if (cont != null) {
+                        System.out.println("Player: " + cont.getName()); // Print para depuração
+                        if (cont.equals(contestant)) {
+                            return true;
+                        }
+                    } else {
+                        System.out.println("Player is null!"); // Print para depuração
+                    }
                 }
+            } else {
+                System.out.println("Players array is null!"); // Print para depuração
             }
+        } else {
+            System.out.println("Team ID not found in chosen players map!"); // Print para depuração
         }
         return false;
     }
+    
 }

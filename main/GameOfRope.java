@@ -72,11 +72,11 @@ public class GameOfRope
       referee.start ();
       System.out.println("Lauching Referee Thread\n");
       for (int i = 0; i < SimulPar.NUM_TEAMS; i++) {
-          coaches[i].start ();
           System.out.println("Lauching Coach " + coaches[i] + " Thread\n");
+          coaches[i].start ();
           for (int j = 0; j < SimulPar.TEAM_SIZE; j++) {
-              contestants[i][j].start ();
               System.out.println("Lauching Contestant " + contestants[i][j] + " Thread\n");
+              contestants[i][j].start ();
           }
       }
 

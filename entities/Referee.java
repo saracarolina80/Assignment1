@@ -22,27 +22,23 @@ public class Referee extends Thread {
 
         for (int numGames = 0; numGames < SimulPar.NUM_GAMES; numGames++) {
 
-            if(refereeState == RefereeStates.START_OF_THE_MATCH) {
+        
                 refereeSite.announceNewGame(this);
                 playground.signalMatchStatus(false);
-            }
+
             
             int numTrials = 0;
             int ropePosition = 0;
 
             while (numTrials < SimulPar.NUM_TRIALS && Math.abs(ropePosition) != SimulPar.KNOCKOUT_THRESHOLD) {
-                switch (refereeState) {
-                    case RefereeStates.START_OF_A_GAME:
+
                         refereeSite.callTrial(this);
-                        break;
-                    case RefereeStates.TEAMS_READY:
+
                         playground.startTrial(this);
-                    case RefereeStates.WAIT_FOR_TRIAL_CONCLUSION:
-                        refereeSite.callTrial(this);
+
                         ropePosition = playground.assertTrialDecision(this, ropePosition);
 
-                    default:
-                        break;
+
                 }
                 
                 numTrials++;
@@ -53,14 +49,13 @@ public class Referee extends Thread {
 
                 System.out.println("\n\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!NUM TRIALS : " + numTrials + "!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
                 System.out.println("Math.abs(ropePosition) = " + Math.abs(ropePosition));
-            }
 
             winner += refereeSite.declareGameWinner(this, ropePosition);
-        }
 
         playground.signalMatchStatus(true);
         refereeSite.declareMatchWinner(this, winner);
     }
+}
     
     public void setRefereeState(int newRefereeState) {
         switch (newRefereeState) {

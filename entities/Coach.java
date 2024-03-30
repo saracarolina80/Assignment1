@@ -21,26 +21,17 @@ public class Coach extends Thread {
 
     @Override
     public void run() {
-        refereeSite.waitNewGame(this);
-    //    while (!playground.isMatchFinished(this)) {
-            switch (coachState) {
-                case CoachStates.WAIT_FOR_REFEREE_COMMAND:
+        
+        while (!playground.isMatchFinished(this)) {
+                    refereeSite.waitNewGame(this);
                     bench.callContestants(this);
-                    break;
-                case CoachStates.ASSEMBLE_TEAM:
                     playground.waitAthletes(this);
                     refereeSite.informReferee(this);
-                    break;
-                case CoachStates.WATCH_TRIAL:
                     playground.watchTrial(this);
                     refereeSite.reviewNotes(this);
-                    break;
-                case CoachStates.END_OF_THE_MATCH:
                     refereeSite.waitNewGame(this);
-                    break;
             }
-      //  }
-    }
+         }
     // BEST 3 OR RANDOM
     public int getChooseMode() {
         return chooseContestants;

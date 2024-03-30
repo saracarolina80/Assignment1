@@ -36,25 +36,18 @@ public class Contestant extends Thread {
 
     @Override
     public void run() {
-       // while (!playground.isMatchFinished(this)) {
+       while (!playground.isMatchFinished(this)) {
             bench.sitDown(this);
-            switch (contestantState) {
-                case ContestantStates.SEAT_AT_THE_BENCH:
                     playground.followCoachAdvice(this);
-                    break;
-                case ContestantStates.STAND_IN_POSITION:
+
+
                     playground.getReady(this);
-                    break;
-                case ContestantStates.DO_YOUR_BEST:
+
                     playground.pullTheRope(this);
                     playground.amDone(this);
-                case ContestantStates.END_OF_THE_MATCH:
+
                     bench.sitDown(this);
-                    break;
-                default:
-                    break;
-            }
-   // }
+    }
 
     }
     public void setContestantState(int newContestantState) {

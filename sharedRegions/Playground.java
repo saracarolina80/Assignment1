@@ -397,10 +397,9 @@ public class Playground {
             
             // Add athlete to the benchPlayers list
             Contestant[] listOfContestants = playground_contestants.get(teamId);
-            if (listOfContestants == null | listOfContestants.length == 0) {
+            if (listOfContestants == null || listOfContestants.length == 0) {
                 System.out.println("Creating new list of contestants for team " + teamId);
-                listOfContestants = new Contestant[]{contestant};
-                playground_contestants.put(teamId , listOfContestants);
+                playground_contestants.put(teamId , new Contestant[] { contestant});
             }
             else {
                 Contestant[] updatedList = new Contestant[listOfContestants.length + 1];
@@ -437,7 +436,7 @@ public class Playground {
     public void signalMatchStatus(boolean ended) {
         try {
             lock.lock();
-            System.out.println("REFEREE is signaling match finished");
+            System.out.println("REFEREE is signaling match finished: " + ended);
             matchFinished = ended;
             matchFinishedCount = 12;
             cond_matchFinished.signalAll();
