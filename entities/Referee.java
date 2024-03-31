@@ -33,7 +33,7 @@ public class Referee extends Thread {
             while (numTrials <= SimulPar.NUM_TRIALS && Math.abs(ropePosition) != SimulPar.KNOCKOUT_THRESHOLD) {
                 System.out.println("\n\n ---------------TRIAL " + numTrials + "---------------n\n");
                 System.out.println("Rope is in position: " + ropePosition);
-
+                playground.signalMatchStatus(false);
                 refereeSite.callTrial(this);
 
                 playground.startTrial(this);
@@ -46,11 +46,12 @@ public class Referee extends Thread {
                 numTrials++;
                 
             }
-            
-
+        
+        
+    }
         playground.signalMatchStatus(true);
         refereeSite.declareMatchWinner(this, winner);
-    }
+        
 }
     
     public void setRefereeState(int newRefereeState) {

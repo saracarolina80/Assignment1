@@ -43,7 +43,7 @@ public class Contestant extends Thread {
     @Override
     public void run() {
   
-       while (!playground.isMatchFinished(this)) {
+       while (!playground.verifyIfInMatch(this)) {
             bench.sitDown(this);
                 if(isChosen) {
                   
@@ -55,7 +55,7 @@ public class Contestant extends Thread {
                     playground.pullTheRope(this);
                     playground.amDone(this);
 
-                    bench.sitDown(this);
+                   // bench.sitDown(this);
                 }
                 else{
                     System.out.println("Contestant " + this.getName() + " was not chosen to this trial!");

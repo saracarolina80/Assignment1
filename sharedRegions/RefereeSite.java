@@ -196,9 +196,9 @@ public class RefereeSite {
         try {
             lock.lock();
             setCoachState(CoachStates.WAIT_FOR_REFEREE_COMMAND);
-            System.out.println("TRIAL CALLL COUNT: " + trialCallCount);
+           // System.out.println("TRIAL CALLL COUNT: " + trialCallCount);
             while (trialCallCount == 0) {
-                System.out.println("REVIEWD NOTESS");
+             //   System.out.println("REVIEWD NOTESS");
                 try {
                     callTrial.await();
                 } catch (InterruptedException e) {

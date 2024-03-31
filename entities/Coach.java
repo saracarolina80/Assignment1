@@ -39,7 +39,7 @@ public class Coach extends Thread {
                     playground.watchTrial(this);
                    
                   //  refereeSite.waitNewGame(this);
-         } while (!playground.isMatchFinished(this));
+         } while (!playground.verifyIfInMatch(this));
                  
     }
     // BEST 3 OR RANDOM

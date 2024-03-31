@@ -31,14 +31,16 @@ public class Playground {
     private final Condition assertTrialDecision;
     private final Condition startTrial;
     private final Condition amDone;
-    private final Condition cond_matchFinished;
+    private final Condition contestant_intMatch;
+    private final Condition coach_inMatch;
 
     private int startTrialCount = 0;
     private int assertTrialDecisionCount = 0;
     private int amDoneCount = 0;
     private int gameCount = 0;
-    private int matchFinishedCount = 0; // Field to track match state
-    private boolean matchFinished = false; // Field to track match state
+    private int ContestantmatchFinishedCount= 0; 
+    private int CoachmatchFinishedCount = 0;
+    private boolean matchFinished = false; 
     private HashMap<Integer, Integer> contestantCount = new HashMap<>(Map.of(1, 0, 2, 0));
     private HashMap<Integer , Contestant[]> playground_contestants = new HashMap<>();
     
@@ -73,7 +75,8 @@ public class Playground {
         contestantArrived = lock.newCondition();
         assertTrialDecision = lock.newCondition();
         startTrial = lock.newCondition();
-        cond_matchFinished = lock.newCondition();
+        coach_inMatch = lock.newCondition();
+        contestant_intMatch = lock.newCondition();
         amDone = lock.newCondition();
         if ((logFileName == null) || Objects.equals(logFileName, ""))
             this.logFileName = "logger";
@@ -138,7 +141,7 @@ public class Playground {
 
         String[] parts = coachName.split(" ");
         int coachId = Integer.parseInt(parts[1]); 
-        
+        System.out.println("AHAHAHAHAHAH");
         try {
             lock.lock();
             while (contestantCount.get(coachId ) != 3) {        
@@ -152,6 +155,7 @@ public class Playground {
         } finally {
             lock.unlock();
         }
+        System.out.println("FOGOGOGOGO");
         setCoachState(CoachStates.ASSEMBLE_TEAM);
     }
 
@@ -394,7 +398,6 @@ public class Playground {
             lock.lock();
             System.out.println(contestantName + " arrived in the playground");
             
-            // Add athlete to the playground list
             Contestant[] listOfContestants = playground_contestants.get(teamId);
             if (listOfContestants == null || listOfContestants.length == 0) {
                 playground_contestants.put(teamId , new Contestant[] { contestant});
@@ -430,43 +433,45 @@ public class Playground {
             lock.lock();
             System.out.println("Ref is signaling match finished: " + ended);
             matchFinished = ended;
-            matchFinishedCount = 12;
-            cond_matchFinished.signalAll();
+            CoachmatchFinishedCount = 2;        
+            ContestantmatchFinishedCount = 10;
+            contestant_intMatch.signalAll();
+            coach_inMatch.signalAll();
         } finally {
             lock.unlock();
         }
     }
 
-    public boolean isMatchFinished(Coach coach) {
+    public boolean verifyIfInMatch(Coach coach) {
         String coachName = coach.getName();
         try {
             lock.lock();
-            while (matchFinishedCount == 0) {
+            while (CoachmatchFinishedCount == 0) {
                 try {
-                    cond_matchFinished.await();
+                    coach_inMatch.await();
                     System.out.println(coachName + " received match finished");
                 } catch (InterruptedException e) {
                 }
             }
-            matchFinishedCount--;
+            CoachmatchFinishedCount--;
         } finally {
             lock.unlock();
         }
 
         return matchFinished;
     }
-    public boolean isMatchFinished(Contestant contestant) {
+    public boolean verifyIfInMatch(Contestant contestant) {
         String contestantName = contestant.getName();
         try {
             lock.lock();
-            while (matchFinishedCount == 0) {
+            while (ContestantmatchFinishedCount == 0) {
                 try {
-                    cond_matchFinished.await();
+                    contestant_intMatch.await();
                     System.out.println(contestantName + " received match finished");
                 } catch (InterruptedException e) {
                 }
             }
-            matchFinishedCount--;
+            ContestantmatchFinishedCount--;
         } finally {
             lock.unlock();
         }

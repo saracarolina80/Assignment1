@@ -95,7 +95,7 @@ public class GameOfRope
               try {
                   contestants[i][j].join ();
               } catch (InterruptedException ignored) {}
-              GenericIO.writelnString ("The contestant " + (i+1) + "-" + (j+1) + " has terminated.");
+              GenericIO.writelnString ("The contestant " + (i+1) + (j+1) + " has terminated.");
           }
       }
       
