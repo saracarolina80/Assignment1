@@ -51,8 +51,6 @@ public class ContestantsBench {
             benchContestants.put(i, new Contestant[0]);
         }
         repos = new GeneralRepos(logFileName);
-
-        reportStatus();
     }
 
 
@@ -63,7 +61,6 @@ public class ContestantsBench {
      */
     public synchronized void setRefereeState(int state) {
         refereeState = state;
-        reportStatus();
     }
 
     /**
@@ -73,7 +70,6 @@ public class ContestantsBench {
      */
     public synchronized void setCoachState(int Cstate) {
         coachState = Cstate;
-        reportStatus();
     }
 
      /**
@@ -83,23 +79,8 @@ public class ContestantsBench {
      */
     public synchronized void setContestantState(int state) {
         contState = state;
-        reportStatus();
     }
 
-
-
-    private void reportStatus() {
-        TextFile log = new TextFile();
-        if (!log.openForAppending(".", logFileName)) {
-            System.out.println("Failed to open the file " + logFileName + " for appending!");
-            System.exit(1);
-        }
-        repos.reportStatus();
-        if (!log.close()) {
-            System.out.println("Failed to close the file " + logFileName + "!");
-            System.exit(1);
-        }
-    }
 
     public void callContestants(Coach coach) {
         String coachName = coach.getName();
@@ -111,16 +92,17 @@ public class ContestantsBench {
             lock.lock();
             while (benchContestants.get(coachId).length < 5) {
                 try {
-                    System.out.println(coachName + " is waiting for all contestants to be seated at bench.");
+                 //   System.out.println(coachName + " is waiting for all contestants to be seated at bench.");
                     allContestantSeated.await();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-            System.out.println("ALL CONTESTANTS of team " + coachId + " are seated!");
-            System.out.println(coachName + " is now choosing the team.");
-
+        //    System.out.println("ALL CONTESTANTS of team " + coachId + " are seated!");
+          //  System.out.println(coachName + " is now choosing the team.");
+            setCoachState(CoachStates.ASSEMBLE_TEAM);
+            
             Contestant[] listOfContestants = benchContestants.get(coachId);
 
             if (chooseMode == 1) {
@@ -143,13 +125,13 @@ public class ContestantsBench {
             benchContestants.put(coachId, remainingContestants.toArray(new Contestant[0]));
 
             for (Contestant cont : benchContestants.get(coachId)) {
-                System.out.println("cont in BENCH: " + cont.getName() + " ");
+             //   System.out.println("cont in BENCH: " + cont.getName() + " ");
             }
             for (Contestant cont : chosenContestants.get(coachId)) {
                 if (cont != null) {
-                    System.out.println("cont Chosen: " + cont.getName() + " ");
+               //     System.out.println("cont Chosen: " + cont.getName() + " ");
                 } else {
-                    System.out.println("ERROR");
+                 //   System.out.println("ERROR");
                 }
             }
             callContestantsCount[coachId - 1] = SimulPar.TEAM_SIZE;
@@ -179,7 +161,7 @@ public class ContestantsBench {
                 updatedList[listOfContestants.length] = contestant;
                 benchContestants.put(teamId, updatedList);
             }
-            System.out.println(contestantName + " takes a seat at the bench.");
+        //    System.out.println(contestantName + " takes a seat at the bench.");
 
             if (benchContestants.get(teamId).length == 5) {
                 allContestantSeated.signalAll();

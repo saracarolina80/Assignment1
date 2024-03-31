@@ -73,7 +73,6 @@ public class RefereeSite {
             this.logFileName = logFileName;
         repos = new GeneralRepos(logFileName);
         refereeState = RefereeStates.START_OF_THE_MATCH;
-        reportStatus();
     }
 
     /**
@@ -83,7 +82,6 @@ public class RefereeSite {
      */
     public synchronized void setRefereeState(int state) {
         refereeState = state;
-        reportStatus();
     }
 
     /**
@@ -93,24 +91,6 @@ public class RefereeSite {
      */
     public synchronized void setCoachState(int Cstate) {
         coachState = Cstate;
-        reportStatus();
-    }
-
-    /**
-     * Write the current state to the logging file.
-     */
-    private void reportStatus() {
-        TextFile log = new TextFile();
-        if (!log.openForAppending(".", logFileName)) {
-            System.out.println("Failed to open the log file " + logFileName + " for appending!");
-            System.exit(1);
-        }
-        repos.reportStatus();
-
-        if (!log.close()) {
-            System.out.println("Failed to close the log file " + logFileName + "!");
-            System.exit(1);
-        }
     }
 
     /**
@@ -122,7 +102,7 @@ public class RefereeSite {
         String refereeName = referee.getName();
         try {
             lock.lock();
-            System.out.println(refereeName + " is announcing a new game.");
+            System.out.println("--- NEW GAME ---");
             referee.setRefereeState(RefereeStates.START_OF_A_GAME);
             gamesCount++;
             newGameCount = 2;
@@ -142,7 +122,6 @@ public class RefereeSite {
 
         try {
             lock.lock();
-            System.out.println(refereeName + " is calling for a new trial!");
             trialCallCount = 2;
             callTrial.signalAll();
         } finally {
@@ -159,7 +138,7 @@ public class RefereeSite {
                 }
             }
             setRefereeState(RefereeStates.TEAMS_READY);
-            System.out.println(refereeName + " acknowledges that teams are ready for the trial.");
+            System.out.println(refereeName + " knows : TEAMS_READY");
             coachesCount = 0;
         } finally {
             lock.unlock();
@@ -174,15 +153,16 @@ public class RefereeSite {
     public void informReferee(Coach coach) {
         String coachName = coach.getName();
 
+        setCoachState(CoachStates.WATCH_TRIAL);
+
         try {
             lock.lock();
             coachesCount++;
-            System.out.println(coachName + " is informing the referee that the team is ready.");
             informReferee.signal();
         } finally {
             lock.unlock();
         }
-        setCoachState(CoachStates.WATCH_TRIAL);
+      
     }
 
     /**
@@ -218,7 +198,7 @@ public class RefereeSite {
      * @param ropePosition the position of the rope at the end of the game
      * @return the winning team (1 or 2) or 0 for a draw
      */
-    public int declareGameWinner(Referee referee, int ropePosition) {
+    public int getGameWinner(Referee referee, int ropePosition) {
         setRefereeState(RefereeStates.END_OF_A_GAME);
         if (ropePosition < 0) {
             System.out.println("Game " + gamesCount + " won by Team 1!");
@@ -238,7 +218,7 @@ public class RefereeSite {
      * @param referee the referee declaring the match winner
      * @param result  the result of the match: negative for Team 1 win, positive for Team 2 win, zero for draw
      */
-    public synchronized void declareMatchWinner(Referee referee, int result) {
+    public synchronized void getMatchWinner(Referee referee, int result) {
         setRefereeState(RefereeStates.END_OF_THE_MATCH);
         if (result < 0) {
             System.out.println("Team 1 has won the match!");

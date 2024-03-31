@@ -24,16 +24,16 @@ public class Referee extends Thread {
 
         
                 refereeSite.announceNewGame(this);
-                playground.signalMatchStatus(false);
+                playground.isMatchStillGoing(false);
 
             
             int numTrials = 1;
             int ropePosition = 0;
 
-            while (numTrials <= SimulPar.NUM_TRIALS && Math.abs(ropePosition) != SimulPar.KNOCKOUT_THRESHOLD) {
-                System.out.println("\n\n ---------------TRIAL " + numTrials + "---------------n\n");
+            while ( Math.abs(ropePosition) != SimulPar.KNOCKOUT_THRESHOLD && numTrials <= SimulPar.NUM_TRIALS ) {
+                System.out.println("\n\n ------ TRIAL " + numTrials + "------\n");
                 System.out.println("Rope is in position: " + ropePosition);
-                playground.signalMatchStatus(false);
+                playground.isMatchStillGoing(false);
                 refereeSite.callTrial(this);
 
                 playground.startTrial(this);
@@ -42,15 +42,15 @@ public class Referee extends Thread {
 
 
     
-                winner += refereeSite.declareGameWinner(this, ropePosition);
+                winner += refereeSite.getGameWinner(this, ropePosition);
                 numTrials++;
                 
             }
         
         
     }
-        playground.signalMatchStatus(true);
-        refereeSite.declareMatchWinner(this, winner);
+        playground.isMatchStillGoing(true);
+        refereeSite.getMatchWinner(this, winner);
         
 }
     

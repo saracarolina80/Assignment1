@@ -83,24 +83,7 @@ public class Playground {
         else
             this.logFileName = logFileName;
         repos = new GeneralRepos(logFileName);
-        reportStatus();
-    }
-
-    /**
-     * Write the current state to the logging file.
-     */
-    private void reportStatus() {
-        TextFile log = new TextFile();
-        if (!log.openForAppending(".", logFileName)) {
-            System.out.println("Failed to open the file " + logFileName + " for appending content!");
-            System.exit(1);
-        }
-        
-        repos.reportStatus();
-        if (!log.close()) {
-            System.out.println("Failed to close the file " + logFileName + "!");
-            System.exit(1);
-        }
+      
     }
 
     /**
@@ -109,8 +92,8 @@ public class Playground {
      * @param state referee state
      */
     public synchronized void setRefereeState(int state) {
+        
         refereeState = state;
-        reportStatus();
     }
 
     /**
@@ -120,7 +103,6 @@ public class Playground {
      */
     public synchronized void setCoachState(int Cstate) {
         coachState = Cstate;
-        reportStatus();
     }
     /**
      * Set contestant state.
@@ -129,7 +111,6 @@ public class Playground {
      */
     public synchronized void setContestantState(int state) {
         contState = state;
-        reportStatus();
     }
 
     /**
@@ -141,7 +122,6 @@ public class Playground {
 
         String[] parts = coachName.split(" ");
         int coachId = Integer.parseInt(parts[1]); 
-        System.out.println("AHAHAHAHAHAH");
         try {
             lock.lock();
             while (contestantCount.get(coachId ) != 3) {        
@@ -155,8 +135,6 @@ public class Playground {
         } finally {
             lock.unlock();
         }
-        System.out.println("FOGOGOGOGO");
-        setCoachState(CoachStates.ASSEMBLE_TEAM);
     }
 
     /**
@@ -165,7 +143,6 @@ public class Playground {
      */
     public void watchTrial(Coach coach) {
         String coachName = coach.getName();
-        System.out.println("WATCHING THE TRIAL");
         try {
             lock.lock();
             while(assertTrialDecisionCount == 0){
@@ -220,31 +197,30 @@ public class Playground {
      
         if (pointDiff == 0) {
            
-            System.out.println(refereeName + " found the result: It was a draw with a total of " + maxTotalStrength + " points for each team!");
+            System.out.println("DRAW with a total of " + maxTotalStrength + " points for each team!");
         } else {
             // Determine the winner based on the total strength
-            System.out.println(refereeName + " found the result: Team " + strongestTeam + " won this trial with a total of " + maxTotalStrength + " points; " + pointDiff + " more than the other team!");
+            System.out.println("Team " + strongestTeam + " WON this trial with a total of " + maxTotalStrength + " points");
+            System.out.println("The difference was: " + pointDiff);
         }
+
 
         // Update rope position based on which team wins
         if (pointDiff > 0) {
             if (strongestTeam == 2) {
                 ropePosition++; // Team 2 wins, rope moves to the right
-                System.out.println(refereeName
-                        + " found the result: rope moved 1 point to the right and its center is now at position "
+                System.out.println("THE ROPE moved 1 place to the right and its center is now at position "
                         + ropePosition);
             } else if (strongestTeam == 1) {
                 ropePosition--; // Team 1 wins, rope moves to the left
-                System.out.println(refereeName
-                        + " found the result: rope moved 1 point to the left and its center is now at position "
+                System.out.println("THE ROPE moved 1 place to the left and its center is now at position "
                         + ropePosition);
             }
         } else {
             System.out.println(refereeName
-                    + " found the result: It was a draw. The rope does not move and its center is still at position "
+                    + "THE ROPE didn't move and the center is still at position "
                     + ropePosition);
         }
-
         // Signal assertTrialDecision
         try {
             lock.lock();
@@ -267,7 +243,7 @@ public class Playground {
 
         try {
             lock.lock();
-            System.out.println(refereeName + " is starting the trial");
+            System.out.println("--START OF THE TRIAL--");
             startTrialCount = 6;
             startTrial.signalAll();
         } finally {
@@ -280,11 +256,11 @@ public class Playground {
                 try {
                     referee.setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
                     amDone.await();
-                    System.out.println(refereeName + " received amDone");
+                  //  System.out.println(refereeName + " received amDone");
                 } catch (InterruptedException e) {
                 }
             }
-            System.out.println(refereeName + " will proceed with the trial decision");
+            System.out.println("..TRIAL DECISION..");
         } finally {
             lock.unlock();  
         }
@@ -302,10 +278,9 @@ public class Playground {
         char teamChar = parts[1].charAt(0); 
         int teamId = Character.getNumericValue(teamChar);
 
-        // Signal amDone
         try {
             lock.lock();
-            System.out.println(contestantName + " is signaling amDone");
+            System.out.println(contestantName + " is DONE! UFF");
             amDoneCount++;
             amDone.signalAll();
         } finally {
@@ -325,6 +300,7 @@ public class Playground {
 
             // After "Playing the game" decrement strength
             contestant.decrementStrength();
+            
             System.out.println(contestantName + "'s new strength: " + contestant.getStrength());
             // Remove self from playground
             Contestant[] listOfContestants = playground_contestants.get(teamId);
@@ -357,7 +333,7 @@ public class Playground {
     public void pullTheRope(Contestant contestant) {
         String contestantName = contestant.getName();
 
-        System.out.println(contestantName + " pulled the rope. Strength is: " + contestant.getStrength());
+        System.out.println(contestantName + " is pulling the rope with strength: " + contestant.getStrength());
         // Wait random amount of time between 1 and 3 seconds
         Random random = new Random();
         int minWaitTime = 1000; // 1 second
@@ -396,7 +372,7 @@ public class Playground {
         setContestantState(ContestantStates.STAND_IN_POSITION);
         try {
             lock.lock();
-            System.out.println(contestantName + " arrived in the playground");
+            System.out.println(contestantName + " is in playground");
             
             Contestant[] listOfContestants = playground_contestants.get(teamId);
             if (listOfContestants == null || listOfContestants.length == 0) {
@@ -409,7 +385,7 @@ public class Playground {
             }
             contestantCount.put(teamId, contestantCount.get(teamId)+1);
             contestantArrived.signalAll();
-            System.out.println(contestantName + " signaled arrival to coaches");
+          
             
         } finally {
             lock.unlock();
@@ -419,7 +395,7 @@ public class Playground {
             while(startTrialCount == 0){
                 try{
                     startTrial.await();
-                    System.out.println(contestantName + " received start trial");
+                
                 } catch (InterruptedException e){}
             }
             startTrialCount = startTrialCount - 1;
@@ -428,10 +404,10 @@ public class Playground {
         }
     }
 
-    public void signalMatchStatus(boolean ended) {
+    public void isMatchStillGoing(boolean ended) {
         try {
             lock.lock();
-            System.out.println("Ref is signaling match finished: " + ended);
+            System.out.println("IS MATCH ENDED? " + ended);
             matchFinished = ended;
             CoachmatchFinishedCount = 2;        
             ContestantmatchFinishedCount = 10;
@@ -449,7 +425,7 @@ public class Playground {
             while (CoachmatchFinishedCount == 0) {
                 try {
                     coach_inMatch.await();
-                    System.out.println(coachName + " received match finished");
+                    System.out.println(coachName + " know match status");
                 } catch (InterruptedException e) {
                 }
             }
@@ -467,7 +443,7 @@ public class Playground {
             while (ContestantmatchFinishedCount == 0) {
                 try {
                     contestant_intMatch.await();
-                    System.out.println(contestantName + " received match finished");
+                    System.out.println(contestantName + " knows match status");
                 } catch (InterruptedException e) {
                 }
             }
