@@ -28,17 +28,19 @@ public class Coach extends Thread {
             e.printStackTrace();
         }
         
-        refereeSite.waitNewGame(this);
-        while (!playground.isMatchFinished(this)) {
         
-                    refereeSite.informReferee(this);
+        refereeSite.waitNewGame(this);
+        do{
+        
+                    refereeSite.reviewNotes(this);
                     bench.callContestants(this);
                     playground.waitContestants(this);
                     refereeSite.informReferee(this);
                     playground.watchTrial(this);
-                    refereeSite.reviewNotes(this);
-                    refereeSite.waitNewGame(this);
-            }
+                   
+                  //  refereeSite.waitNewGame(this);
+         } while (!playground.isMatchFinished(this));
+                 
     }
     // BEST 3 OR RANDOM
     public int getChooseMode() {

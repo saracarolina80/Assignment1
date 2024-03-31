@@ -42,11 +42,7 @@ public class Contestant extends Thread {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(2000); // 2000 milliseconds = 2 seconds
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+  
        while (!playground.isMatchFinished(this)) {
             bench.sitDown(this);
                 if(isChosen) {
@@ -62,7 +58,7 @@ public class Contestant extends Thread {
                     bench.sitDown(this);
                 }
                 else{
-                    System.out.println("Contestant " + this.getName() + "was not chosen to this trial!");
+                    System.out.println("Contestant " + this.getName() + " was not chosen to this trial!");
                 }
     }
 
