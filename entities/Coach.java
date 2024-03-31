@@ -21,6 +21,7 @@ public class Coach extends Thread {
 
     @Override
     public void run() {
+
         try {
             Thread.sleep(2000); // 2000 milliseconds = 2 seconds
         } catch (InterruptedException e) {
@@ -30,7 +31,7 @@ public class Coach extends Thread {
         refereeSite.waitNewGame(this);
         while (!playground.isMatchFinished(this)) {
         
-                    
+                    refereeSite.informReferee(this);
                     bench.callContestants(this);
                     playground.waitContestants(this);
                     refereeSite.informReferee(this);
@@ -38,7 +39,7 @@ public class Coach extends Thread {
                     refereeSite.reviewNotes(this);
                     refereeSite.waitNewGame(this);
             }
-         }
+    }
     // BEST 3 OR RANDOM
     public int getChooseMode() {
         return chooseContestants;

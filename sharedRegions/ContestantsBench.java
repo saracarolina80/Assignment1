@@ -172,7 +172,7 @@ public class ContestantsBench {
             for (Contestant athlete : benchContestants.get(coachId)) {
                 System.out.print("BENCH: "  + athlete.getName() + " ");
             }
-            System.out.println();
+        
             for (Contestant athlete : chosenContestants.get(coachId)) {
                 if(athlete != null) {
                 System.out.print("Chosen:" + athlete.getName() + " ");
@@ -224,14 +224,14 @@ public class ContestantsBench {
 
         // Wait until they are called
         while(callContestantsCount[teamId-1] == 0){
-            System.out.println(callContestantsCount[teamId-1]);
+           
             try{
-                System.out.println("CONTESTANT " + contestantName + " is waiting");
+            //    System.out.println("CONTESTANT " + contestantName + " is waiting");
                 callContestants.await();
-                System.out.println("CONTESTANT " + contestantName + " is awaken");
+            //    System.out.println("CONTESTANT " + contestantName + " is awaken");
             } catch (InterruptedException e){}
         }
-        System.out.println("CONTESTANT " + contestantName + " decrements callContestantsCount");
+       // System.out.println("CONTESTANT " + contestantName + " decrements callContestantsCount");
         callContestantsCount[teamId-1]--;
 
         if (isContestantInChosenPlayers(teamId, contestant, chosenContestants)){
@@ -280,19 +280,19 @@ public class ContestantsBench {
             if (contestants != null) {
                 for (Contestant cont : contestants) {
                     if (cont != null) {
-                        System.out.println("Player: " + cont.getName()); // Print para depuração
+                       // System.out.println("Player: " + cont.getName()); // Print para depuração
                         if (cont.equals(contestant)) {
                             return true;
                         }
                     } else {
-                        System.out.println("Player is null!"); // Print para depuração
+                  //      System.out.println("Player is null!"); // Print para depuração
                     }
                 }
             } else {
-                System.out.println("Players array is null!"); // Print para depuração
+            //    System.out.println("Players array is null!"); // Print para depuração
             }
         } else {
-            System.out.println("Team ID not found in chosen players map!"); // Print para depuração
+         //   System.out.println("Team ID not found in chosen players map!"); // Print para depuração
         }
         return false;
     }

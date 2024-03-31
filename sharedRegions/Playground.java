@@ -144,16 +144,17 @@ public class Playground {
         try {
 
             lock.lock();
-            System.out.println("ESTOU à ESPERA: " + contestantCount.get(coachId));
+           
 
-            while (contestantCount.get(coachId) != 3) {         // 3 jogadores para o trial
+            while (contestantCount.get(coachId ) != 3) {        
 
                 try {
                     contestantArrived.await();
-                    System.out.println("COACH " + coachName + " received contestant" );
+              //      System.out.println("COACH " + coachName + " gets contestant" );
                 } catch (InterruptedException e) {
                 }
             }
+           
           contestantCount.put(coachId, 0);
 
         } finally {
@@ -171,15 +172,15 @@ public class Playground {
 
         try {
             lock.lock();
-            System.out.println("COACH " + coachName + " is gonna start watching trial");
+       //     System.out.println("COACH " + coachName + " is gonna start watching trial");
             while(assertTrialDecisionCount == 0){
                 try{
-                    System.out.println("COACH " + coachName + " is waiting watching trial");
+                    System.out.println("COACH " + coachName + " is  watching trial");
                     assertTrialDecision.await();
                     System.out.println("COACH " + coachName + " received trial decision");
                 } catch (InterruptedException e){}
             }
-            System.out.println("COACH " + coachName + " will proceed with trial decision");
+          //  System.out.println("COACH " + coachName + " will proceed with trial decision");
             assertTrialDecisionCount = assertTrialDecisionCount - 1;
         } finally {
             lock.unlock();
@@ -195,55 +196,67 @@ public class Playground {
         String refereeName = referee.getName();
         amDoneCount = 0;
 
-        // Calculates strongest team
+        // Variáveis para acompanhar a equipe mais forte e sua força total
         int strongestTeam = -1;
         int maxTotalStrength = 0;
-        int losingStrength = 0;
+
+        // Itera sobre cada equipe e calcula sua força total
         for (Integer team : playground_contestants.keySet()) {
             Contestant[] contestants = playground_contestants.get(team);
             int totalStrength = 0;
             for (Contestant contestant : contestants) {
                 totalStrength += contestant.getStrength();
             }
+
+            // Atualiza o máximo de força total e a equipe mais forte, se necessário
             if (totalStrength > maxTotalStrength) {
-                if (losingStrength == 0)
-                    losingStrength = maxTotalStrength; // update the loosingStrength with the strength of the team who
-                                                        // lost
                 maxTotalStrength = totalStrength;
                 strongestTeam = team;
-            } else {
-                losingStrength = totalStrength;
             }
         }
-        int pointDiff = maxTotalStrength - losingStrength;
-        if (pointDiff != -1) {
-            System.out.println(
-                    "REFEREE " + refereeName + " found the result: Team " + strongestTeam + " won this trial with a total of "
-                            + maxTotalStrength + " points; " + pointDiff + " more than other team!");
+
+        // Calcula a força total da equipe adversária (a que não é a equipe mais forte)
+        int losingTeam = (strongestTeam == 1) ? 2 : 1;
+        int losingStrength = 0;
+        for (Contestant contestant : playground_contestants.get(losingTeam)) {
+            losingStrength += contestant.getStrength();
+        }
+
+        // Determina o resultado com base na diferença de pontos
+        int pointDiff = Math.abs(maxTotalStrength - losingStrength);
+
+        // Determina o resultado com base na diferença de pontos
+        if (pointDiff == 0) {
+            // Empate
+            System.out.println("REFEREE " + refereeName + " found the result: It was a draw with a total of " + maxTotalStrength + " points for each team!");
         } else {
-            System.out.println(
-                    "REFEREE " + refereeName + " found the result: It was a draw with a total of " + maxTotalStrength + "!");
+            // Determina o vencedor com base na força total
+            System.out.println("REFEREE " + refereeName + " found the result: Team " + strongestTeam + " won this trial with a total of " + maxTotalStrength + " points; " + pointDiff + " more than other team!");
         }
 
         // Update rope position based on which team wins
-        if (strongestTeam == 2) {
-            ropePosition++; // Team 2 wins, rope moves to the right
-            System.out.println("REFEREE " + refereeName
-                    + " found the result: rope moved 1 point to the right and it's center is now at position "
-                    + ropePosition);
-        } else if (strongestTeam == 1) {
-            ropePosition--; // Team 1 wins, rope moves to the left
-            System.out.println("REFEREE " + refereeName
-                    + " found the result: rope moved 1 point to the left and it's center is now at position "
-                    + ropePosition);
+        if (pointDiff > 0) {
+            if (strongestTeam == 2) {
+                ropePosition++; // Team 2 wins, rope moves to the right
+                System.out.println("REFEREE " + refereeName
+                        + " found the result: rope moved 1 point to the right and it's center is now at position "
+                        + ropePosition);
+            } else if (strongestTeam == 1) {
+                ropePosition--; // Team 1 wins, rope moves to the left
+                System.out.println("REFEREE " + refereeName
+                        + " found the result: rope moved 1 point to the left and it's center is now at position "
+                        + ropePosition);
+            }
         } else {
             System.out.println("REFEREE " + refereeName
-                    + " found the result: rope did not move and it's center is still at position " + ropePosition);
+                    + " found the result: It was a draw. The rope does not move and it's center is still at position "
+                    + ropePosition);
         }
+
 
         try {
             lock.lock();
-            System.out.println("REFEREE " + refereeName + " is signaling trial decision");
+          //  System.out.println("REFEREE " + refereeName + " is signaling trial decision");
             assertTrialDecisionCount = 8;
             assertTrialDecision.signalAll();
         } finally {
@@ -272,17 +285,17 @@ public class Playground {
 
         try {
             lock.lock();
-            System.out.println("REFEREE " + refereeName + " is gonna start watching trial");
+         //   System.out.println("REFEREE " + refereeName + " is gonna start watching trial");
             while (amDoneCount != 6) {
                 try {
-                    System.out.println("REFEREE " + refereeName + " is waiting amDone");
+                 //   System.out.println("REFEREE " + refereeName + " is waiting amDone");
                     referee.setRefereeState(RefereeStates.WAIT_FOR_TRIAL_CONCLUSION);
                     amDone.await();
                     System.out.println("REFEREE " + refereeName + " received amDone");
                 } catch (InterruptedException e) {
                 }
             }
-            System.out.println("REFEREE " + refereeName + " will proceed with amDone");
+            System.out.println("REFEREE " + refereeName + " will proceed with trialDecision");
         } finally {
             lock.unlock();  
         }
@@ -313,12 +326,12 @@ public class Playground {
         // Wait for assertTrialDecision
         try {
             lock.lock();
-            System.out.println("ATHLETE " + contestantName + " is gonna start waiting for trial decision");
+         //   System.out.println("ATHLETE " + contestantName + " is gonna start waiting for trial decision");
             while (assertTrialDecisionCount == 0) {
                 try {
-                    System.out.println("ATHLETE " + contestantName + " is waiting for trial decision");
+           //         System.out.println("ATHLETE " + contestantName + " is waiting for trial decision");
                     assertTrialDecision.await();
-                    System.out.println("ATHLETE " + contestantName + " received trial decision");
+              //      System.out.println("ATHLETE " + contestantName + " received trial decision");
                 } catch (InterruptedException e) {
                 }
             }
@@ -327,6 +340,7 @@ public class Playground {
 
             // After "Playing the game" decrement strength
             contestant.decrementStrength();
+            System.out.println("Contestant " + contestantName + " new strength: " + contestant.getStrength());
             // Remove self from playground
             Contestant[] listOfContestants = playground_contestants.get(teamId);
             int indexToRemove = -1;
@@ -379,7 +393,7 @@ public class Playground {
      */
     public void getReady(Contestant contestant) {
         String contestantName = contestant.getName();
-        System.out.println("ATHLETE " + contestantName + " is getting ready");
+    //    System.out.println("ATHLETE " + contestantName + " is getting ready");
         setContestantState(ContestantStates.DO_YOUR_BEST);
     }
 
@@ -404,7 +418,7 @@ public class Playground {
             // Add athlete to the playground list
             Contestant[] listOfContestants = playground_contestants.get(teamId);
             if (listOfContestants == null || listOfContestants.length == 0) {
-                System.out.println("Creating new list of contestants for team " + teamId);
+            //    System.out.println("Creating new list of contestants for team " + teamId);
                 playground_contestants.put(teamId , new Contestant[] { contestant});
                
 
@@ -415,10 +429,10 @@ public class Playground {
                 updatedList[listOfContestants.length] = contestant;
                 playground_contestants.put(teamId, updatedList);
             }
-            contestantCount.put(teamId, contestantCount.get(teamId));
+            contestantCount.put(teamId, contestantCount.get(teamId)+1);
             
         
-            System.out.println("ATHLETE " + contestantName + " added themselves to the playground list.");
+        //    System.out.println("ATHLETE " + contestantName + " added themselves to the playground list.");
             contestantArrived.signalAll();
             System.out.println("ATHLETE " + contestantName + " signaled arrival to coaches");
             
@@ -427,7 +441,7 @@ public class Playground {
         }
         try {
             lock.lock();
-            System.out.println("ATHLETE " + contestantName + " is gonna start waiting for trial to start");
+         //   System.out.println("ATHLETE " + contestantName + " is gonna start waiting for trial to start");
             while(startTrialCount == 0){
 
                 try{
@@ -436,7 +450,7 @@ public class Playground {
                     System.out.println("ATHLETE " + contestantName + " received start trial");
                 } catch (InterruptedException e){}
             }
-            System.out.println("ATHLETE " + contestantName + " will proceed with start trial");
+         //   System.out.println("ATHLETE " + contestantName + " will proceed with start trial");
             startTrialCount = startTrialCount - 1;
         } finally {
             lock.unlock();
@@ -459,17 +473,17 @@ public class Playground {
         String coachName = coach.getName();
         try {
             lock.lock();
-            System.out.println(coachName + " is gonna start waiting for is match finished");
+         //   System.out.println(coachName + " is gonna start waiting for is match finished");
             while (matchFinishedCount == 0) {
                 try {
-                    System.out.println(coachName + " is waiting match finished");
+           //         System.out.println(coachName + " is waiting match finished");
                     cond_matchFinished.await();
                     System.out.println(coachName + " received match finished");
                 } catch (InterruptedException e) {
                 }
             }
             matchFinishedCount--;
-            System.out.println(coachName + " will proceed with match finished");
+         //   System.out.println(coachName + " will proceed with match finished");
         } finally {
             lock.unlock();
         }
@@ -480,17 +494,17 @@ public class Playground {
         String contestantName = contestant.getName();
         try {
             lock.lock();
-            System.out.println(contestantName + " is gonna start waiting for is match finished");
+          //  System.out.println(contestantName + " is gonna start waiting for is match finished");
             while (matchFinishedCount == 0) {
                 try {
-                    System.out.println(contestantName + " is waiting match finished");
+            //        System.out.println(contestantName + " is waiting match finished");
                     cond_matchFinished.await();
                     System.out.println(contestantName + " received match finished");
                 } catch (InterruptedException e) {
                 }
             }
             matchFinishedCount--;
-            System.out.println(contestantName + " will proceed with match finished");
+          //  System.out.println(contestantName + " will proceed with match finished");
         } finally {
             lock.unlock();
         }

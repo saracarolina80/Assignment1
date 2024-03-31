@@ -5,6 +5,7 @@ import entities.CoachStates;
 import entities.Referee;
 import entities.RefereeStates;
 import genclass.TextFile;
+import main.SimulPar;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock; 
@@ -119,7 +120,7 @@ public class RefereeSite {
      * Announce a new game.
      * @param referee 
      */
-    public synchronized void announceNewGame(Referee referee) {
+    public  void announceNewGame(Referee referee) {
         String refereeName = referee.getName();
         try {
             lock.lock();
@@ -137,12 +138,12 @@ public class RefereeSite {
      * Call for a new trial.
      * @param referee 
      */
-    public synchronized void callTrial(Referee referee) {
+    public void callTrial(Referee referee) {
         String refereeName = referee.getName();
 
         try {
             lock.lock();
-            System.out.println("REFEREE " + refereeName + " is announcing new trial");
+            System.out.println("REFEREE " + refereeName + " is announcing new trial: " + SimulPar.NUM_TRIALS);
             trialCallCount = 2;
             callTrial.signalAll();
         } finally {
@@ -151,10 +152,10 @@ public class RefereeSite {
 
         try {
             lock.lock();
-            System.out.println("REFEREE " + refereeName + " will wait for teams ready");
+          //  System.out.println("REFEREE " + refereeName + " will wait for teams ready");
             while(coachesCount != 2){
                 try{
-                    System.out.println("REFEREE " + refereeName + " is waiting for teams ready");
+            //        System.out.println("REFEREE " + refereeName + " is waiting for teams ready");
                     informReferee.await();
                     System.out.println("REFEREE " + refereeName + " received inform referee");
                 } catch (InterruptedException e){}
@@ -171,11 +172,10 @@ public class RefereeSite {
      * Inform the referee that teams are ready.
      * @param coach 
      */
-    public synchronized void informReferee(Coach coach) {
+    public  void informReferee(Coach coach) {
         String coachName = coach.getName();
-        try {
-            System.out.println("OIOIOIOIOIOIO");
-            
+      
+        try {            
             lock.lock();
             coachesCount = coachesCount +1;
             System.out.println("COACH " + coachName + "is informing referee.");
@@ -190,21 +190,21 @@ public class RefereeSite {
      * Review notes after a trial.
      * @param coach 
      */
-    public synchronized void reviewNotes(Coach coach) {
+    public  void reviewNotes(Coach coach) {
         String coachName = coach.getName();
 
         try {
             lock.lock();
-            System.out.println("COACH " + coachName + " is reviewing notes with referee");
+         //   System.out.println("COACH " + coachName + " is reviewing notes with referee");
             setCoachState(CoachStates.WAIT_FOR_REFEREE_COMMAND);
             while(trialCallCount == 0){
                 try{
-                    System.out.println("COACH " + coachName + " is waiting for call trial");
+                  //  System.out.println("COACH " + coachName + " is waiting for call trial");
                     callTrial.await();
                     System.out.println("COACH " + coachName + " received call trial");
                 } catch (InterruptedException e){}
             }
-            System.out.println("COACH " + coachName + " will proceed call trial");
+          //  System.out.println("COACH " + coachName + " will proceed call trial");
             trialCallCount = trialCallCount - 1;
         } finally {
             lock.unlock();
@@ -255,7 +255,7 @@ public class RefereeSite {
 
         try {
             lock.lock();
-            System.out.println("COACH " + coachName + " will wait for new game");
+          //  System.out.println("COACH " + coachName + " will wait for new game");
             
             while(newGameCount == 0){       
                 try{
@@ -265,7 +265,7 @@ public class RefereeSite {
                 } catch (InterruptedException e){}
             }
             
-            System.out.println("COACH " + coachName + " will proceed");
+        //    System.out.println("COACH " + coachName + " will proceed");
             newGameCount = newGameCount - 1;
         } finally {
             lock.unlock();

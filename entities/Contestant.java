@@ -42,6 +42,11 @@ public class Contestant extends Thread {
 
     @Override
     public void run() {
+        try {
+            Thread.sleep(2000); // 2000 milliseconds = 2 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
        while (!playground.isMatchFinished(this)) {
             bench.sitDown(this);
                 if(isChosen) {

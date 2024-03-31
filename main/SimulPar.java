@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Random;
+
 /**
  *    Definition of the simulation parameters.
  */
@@ -30,8 +32,9 @@ package main;
  
     /**
     *   Strength of the contestant 
-    */
-    public static final int STRENGTH = 5;
+    */  
+  
+    public static final int STRENGTH = 5;   
    /**
     *   Strength units lost when pulling the rope.
     */

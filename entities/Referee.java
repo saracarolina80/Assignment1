@@ -39,17 +39,13 @@ public class Referee extends Thread {
                         ropePosition = playground.assertTrialDecision(this, ropePosition);
 
 
-                }
+               
                 
                 numTrials++;
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {}
-
+            
                 System.out.println("\n\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!NUM TRIALS : " + numTrials + "!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
                 System.out.println("Math.abs(ropePosition) = " + Math.abs(ropePosition));
-
+            }
             winner += refereeSite.declareGameWinner(this, ropePosition);
 
         playground.signalMatchStatus(true);
