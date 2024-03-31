@@ -41,7 +41,7 @@ public class Playground {
     private boolean matchFinished = false; // Field to track match state
     private HashMap<Integer, Integer> contestantCount = new HashMap<>(Map.of(1, 0, 2, 0));
     private HashMap<Integer , Contestant[]> playground_contestants = new HashMap<>();
-
+    
     /**
      * Name of the logging file.
      */
@@ -132,29 +132,34 @@ public class Playground {
     }
 
     /**
-     * Wait for the athletes to be ready.
+     * Wait for the contestants to be ready.
      * @param coach 
      */
-    public void waitAthletes(Coach coach) {
+    public void waitContestants(Coach coach) {
         String coachName = coach.getName();
 
         String[] partes = coachName.split(" ");
-        int teamId = Integer.parseInt(partes[1]); 
-       
+        int coachId = Integer.parseInt(partes[1]); 
+        
         try {
+
             lock.lock();
-            while (contestantCount.get(teamId) != 3) {         // 3 jogadores para o trial
+            System.out.println("ESTOU à ESPERA: " + contestantCount.get(coachId));
+
+            while (contestantCount.get(coachId) != 3) {         // 3 jogadores para o trial
+
                 try {
                     contestantArrived.await();
-                    System.out.println("COACH " + coachName + " received contestant");
+                    System.out.println("COACH " + coachName + " received contestant" );
                 } catch (InterruptedException e) {
                 }
             }
-            contestantCount.put(teamId, 0);
+          contestantCount.put(coachId, 0);
 
         } finally {
             lock.unlock();
         }
+        setCoachState(CoachStates.ASSEMBLE_TEAM);
     }
 
     /**
@@ -279,7 +284,7 @@ public class Playground {
             }
             System.out.println("REFEREE " + refereeName + " will proceed with amDone");
         } finally {
-            lock.unlock();
+            lock.unlock();  
         }
     }
 
@@ -382,6 +387,7 @@ public class Playground {
      * Follow coach's advice.
      *
      * @param contestant contestant
+     * SÓ CORRE PELOS CONTESTANTS ESCOLHIDOS PELO COACH
      */
     public void followCoachAdvice(Contestant contestant) {
         String contestantName = contestant.getName();
@@ -395,11 +401,13 @@ public class Playground {
             lock.lock();
             System.out.println("ATHLETE " + contestantName + " arrived in playground");
             
-            // Add athlete to the benchPlayers list
+            // Add athlete to the playground list
             Contestant[] listOfContestants = playground_contestants.get(teamId);
             if (listOfContestants == null || listOfContestants.length == 0) {
                 System.out.println("Creating new list of contestants for team " + teamId);
                 playground_contestants.put(teamId , new Contestant[] { contestant});
+               
+
             }
             else {
                 Contestant[] updatedList = new Contestant[listOfContestants.length + 1];
@@ -407,8 +415,9 @@ public class Playground {
                 updatedList[listOfContestants.length] = contestant;
                 playground_contestants.put(teamId, updatedList);
             }
+            contestantCount.put(teamId, contestantCount.get(teamId));
             
-            contestantCount.put(teamId, contestantCount.get(teamId) + 1);
+        
             System.out.println("ATHLETE " + contestantName + " added themselves to the playground list.");
             contestantArrived.signalAll();
             System.out.println("ATHLETE " + contestantName + " signaled arrival to coaches");
@@ -420,6 +429,7 @@ public class Playground {
             lock.lock();
             System.out.println("ATHLETE " + contestantName + " is gonna start waiting for trial to start");
             while(startTrialCount == 0){
+
                 try{
                     System.out.println("ATHLETE " + contestantName + " is waiting start trial");
                     startTrial.await();

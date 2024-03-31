@@ -21,11 +21,18 @@ public class Coach extends Thread {
 
     @Override
     public void run() {
+        try {
+            Thread.sleep(2000); // 2000 milliseconds = 2 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         
+        refereeSite.waitNewGame(this);
         while (!playground.isMatchFinished(this)) {
-                    refereeSite.waitNewGame(this);
+        
+                    
                     bench.callContestants(this);
-                    playground.waitAthletes(this);
+                    playground.waitContestants(this);
                     refereeSite.informReferee(this);
                     playground.watchTrial(this);
                     refereeSite.reviewNotes(this);

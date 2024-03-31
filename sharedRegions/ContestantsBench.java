@@ -22,8 +22,8 @@ public class ContestantsBench {
     private final ReentrantLock lock;
     private final Condition callContestants;
     private final Condition allContestantSeated;
-    private final HashMap<Integer, Contestant[]> benchContestants = new HashMap<>();
-    private final HashMap<Integer, Contestant[]> chosenContestants = new HashMap<>();
+    public final HashMap<Integer, Contestant[]> benchContestants = new HashMap<>();
+    public final HashMap<Integer, Contestant[]> chosenContestants = new HashMap<>();
     private int[] callContestantsCount = {0, 0};
 
 
@@ -138,8 +138,7 @@ public class ContestantsBench {
 
             System.out.println("All CONTESTANTS of team" + coachId + " seated"    );
             System.out.println("COACH " + coachName + " is choosing the team");
-             // Update coach state to assemble team
-             setCoachState(CoachStates.ASSEMBLE_TEAM);
+           
             Contestant[] listOfContestants = benchContestants.get(coachId);
    
             if (chooseMode == 1) {
@@ -236,7 +235,8 @@ public class ContestantsBench {
         callContestantsCount[teamId-1]--;
 
         if (isContestantInChosenPlayers(teamId, contestant, chosenContestants)){
-            // Remove from chosenPlayers
+            
+            
             Contestant[] chosenList = chosenContestants.get(teamId);
             int indexToRemove = -1;
             for (int i = 0; i < chosenList.length; i++) {
@@ -250,11 +250,11 @@ public class ContestantsBench {
             System.arraycopy(chosenList, indexToRemove + 1, newArray, indexToRemove, chosenList.length - indexToRemove - 1);
             chosenContestants.put(teamId, newArray);
 
-            
+            contestant.setChosen(true);
         } else {
-            //Will not play, means that it should get +1 strength
+            
             contestant.incrementStrength();
-            // Remove from benchPlayers
+          
             Contestant[] benchList = benchContestants.get(teamId);
             int indexToRemove = -1;
             for (int i = 0; i < benchList.length; i++) {
@@ -267,7 +267,7 @@ public class ContestantsBench {
             System.arraycopy(benchList, 0, newArray, 0, indexToRemove);
             System.arraycopy(benchList, indexToRemove + 1, newArray, indexToRemove, benchList.length - indexToRemove - 1);
             benchContestants.put(teamId, newArray);
-
+            contestant.setChosen(false);
         }
     } finally {
         lock.unlock();

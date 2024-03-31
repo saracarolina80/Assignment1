@@ -174,20 +174,12 @@ public class RefereeSite {
     public synchronized void informReferee(Coach coach) {
         String coachName = coach.getName();
         try {
+            System.out.println("OIOIOIOIOIOIO");
+            
             lock.lock();
-            coachesCount++;
-            informReferee.signal();
+            coachesCount = coachesCount +1;
             System.out.println("COACH " + coachName + "is informing referee.");
-            while (coachesCount < 2) {
-                try {
-                    teamsReady.await(); // Referee waits until both teams are ready
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (coachesCount == 2) {
-                teamsReady.signal(); // Signal the referee that teams are ready
-            }
+            informReferee.signal();
         } finally {
             lock.unlock();
         }

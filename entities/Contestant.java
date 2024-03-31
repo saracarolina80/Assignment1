@@ -9,6 +9,7 @@ public class Contestant extends Thread {
     private final GeneralRepos repos;
     private int contestantState;
     private int strength = SimulPar.STRENGTH;
+    private boolean isChosen;
 
 
     public Contestant(String contestantId, GeneralRepos repos, Playground playground, ContestantsBench bench) {
@@ -17,6 +18,7 @@ public class Contestant extends Thread {
         this.strength = SimulPar.STRENGTH;
         this.repos = repos;
         this.bench = bench;
+        this.isChosen = false;
         this.contestantState = ContestantStates.SEAT_AT_THE_BENCH;
     }
 
@@ -34,10 +36,16 @@ public class Contestant extends Thread {
         return strength;
     }
 
+    public void setChosen(boolean isChosenByCoach){
+        isChosen = isChosenByCoach; 
+    }
+
     @Override
     public void run() {
        while (!playground.isMatchFinished(this)) {
             bench.sitDown(this);
+                if(isChosen) {
+                  
                     playground.followCoachAdvice(this);
 
 
@@ -47,6 +55,10 @@ public class Contestant extends Thread {
                     playground.amDone(this);
 
                     bench.sitDown(this);
+                }
+                else{
+                    System.out.println("Contestant " + this.getName() + "was not chosen to this trial!");
+                }
     }
 
     }
