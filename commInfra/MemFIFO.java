@@ -97,16 +97,4 @@ public class MemFIFO<R> extends MemObject<R>
    {
      return !((inPnt != outPnt) || empty);
    }
-
-  /**
-   *   Test FIFO current empty status.
-   *
-   *    @return true, if FIFO is empty -
-   *            false, otherwise
-   */
-
-   public boolean empty ()
-   {
-     return empty;
-   }
 }

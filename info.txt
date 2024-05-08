@@ -1,0 +1,42 @@
+
+
+Ports:
+     group 11 => y
+     class 2 => x
+
+     first port: 22000 + 100 * x + 10 * (y - 1) = 22000 + 100 * 2 + 10 * (11-1) =  22300
+
+     22450 - 22459
+                     
+Node name: l040101-ws01.ua.pt up to l040101-ws10.ua.pt (3 n funciona)
+
+login: sd211
+
+password: qwerty
+
+Connect to node: ssh sd211@l040101-ws&&.ua.pt
+
+Transfer files : sfto sd211@l040101-ws&&.ua.pt
+----------------------------- ,, -----------------------------
+
+ServerGameOfRopeGeneralRepository --> l040101-ws01.ua.pt ;  22300  
+
+ServerGameOfRopeContestantBench     --> l040101-ws02.ua.pt ;  22301
+
+ServerGameOfRopeRefereeSite  --> l040101-ws04.ua.pt ;  22302
+
+ServerGameOfRopePlayground       --> l040101-ws05.ua.pt ;  22303
+
+ClientGameOfRopeReferee    --> l040101-ws06.ua.pt ;  
+
+ClientGameOfRopeCoach   --> l040101-ws07.ua.pt ;  
+
+ClientGameOfRopeContestant   --> l040101-ws08.ua.pt ;  
+
+
+
+---------------------------- ,, -----------------------------
+
+lsof -i -P -n | grep LISTEN
+kill $(lsof -t -i:port)
+
